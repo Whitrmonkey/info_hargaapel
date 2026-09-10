@@ -341,6 +341,10 @@ export function PasaranClient({
             ·{" "}
             <a href="/catat/servis" className="underline underline-offset-2 hover:text-foreground">
               catat harga servis
+            </a>{" "}
+            ·{" "}
+            <a href="/catat/komponen" className="underline underline-offset-2 hover:text-foreground">
+              catat harga komponen
             </a>
           </p>
           <p>
