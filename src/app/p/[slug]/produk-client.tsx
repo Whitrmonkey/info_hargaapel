@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useTheme } from "next-themes";
 import { IlustrasiProduk, TAMPAK, type Bentuk } from "@/components/ilustrasi-produk";
 import { GrafikDuaSeri } from "@/components/grafik-dua-seri";
+import { Framewall, type GradeMesin, type SpesimenKomponen } from "@/components/framewall";
 import { TombolSaluranWa } from "@/components/tombol-saluran-wa";
 import type { KodeTangga, TanggaHarga } from "@/lib/data/tangga-harga";
 import type { RasioTerpinjam } from "@/lib/komponen";
@@ -74,8 +75,8 @@ export function ProdukClient({
   siblingVarian: Array<{ slug: string; varian: string }>;
   tangga: TanggaHarga;
   rasioKomponen: Record<string, RasioTerpinjam>;
-  componentTypes: Array<{ id: string; kode: string; nama: string }>;
-  boardGrades: Array<{ id: string; kode: string; nama: string }>;
+  componentTypes: Array<{ id: string; kode: string; nama: string; gambar: string | null; penjelasan: string | null }>;
+  boardGrades: Array<{ id: string; kode: string; nama: string; penjelasan: string }>;
   seriJual: TitikSeri[];
   seriBeli: TitikSeri[] | null;
   sinyal: { kode: string; judul: string; alasan: string } | null;
@@ -94,6 +95,7 @@ export function ProdukClient({
   const unitAcuan = bekasResmi ?? bekasInter ?? null;
   const hargaUnitStandar = unitAcuan?.harga ?? null;
   const [jarakAktif, setJarakAktif] = useState(0);
+  const [spesimenAktif, setSpesimenAktif] = useState<string | null>(null);
   const [buka, setBuka] = useState(false);
   const [pesanPantau, setPesanPantau] = useState<string | null>(null);
 
@@ -129,26 +131,33 @@ export function ProdukClient({
   const maxHarga = Math.max(1, ...tangga.anak.map((t) => t.harga!));
   const jarak = tangga.jarak[Math.min(jarakAktif, tangga.jarak.length - 1)] ?? null;
 
-  const nilaiKomponenList = useMemo(() => {
-    return componentTypes
-      .filter((c) => c.kode !== "mesin")
-      .map((c) => {
-        const entri = Object.entries(rasioKomponen).find(([k]) => k.startsWith(`${c.id}|`));
-        return entri ? { ...c, dipinjam: entri[1] } : null;
-      })
-      .filter((x): x is NonNullable<typeof x> => x != null)
-      .sort((a, b) => b.dipinjam.rasio - a.dipinjam.rasio);
-  }, [componentTypes, rasioKomponen]);
-
-  const mesinList = useMemo(() => {
+  // Mesin ikut jadi spesimen di bingkai, memakai rasio grade tertingginya
+  // (mesin yang seluruh fungsinya jalan) sebagai wakil -- rincian per tingkat
+  // muncul saat spesimennya ditekan.
+  const mesinList = useMemo((): GradeMesin[] => {
     return boardGrades
       .map((g) => {
         const dipinjam = mesinType ? rasioKomponen[kunci(mesinType.id, g.id, null)] : undefined;
-        return dipinjam ? { ...g, dipinjam } : null;
+        return dipinjam ? { ...g, rasio: dipinjam.rasio } : null;
       })
-      .filter((x): x is NonNullable<typeof x> => x != null);
+      .filter((x): x is NonNullable<typeof x> => x != null)
+      .sort((a, b) => b.rasio - a.rasio);
   }, [boardGrades, mesinType, rasioKomponen]);
-  const mesinTertinggi = Math.max(1, ...mesinList.map((m) => m.dipinjam.rasio));
+
+  const spesimenList = useMemo((): SpesimenKomponen[] => {
+    return componentTypes
+      .map((c): SpesimenKomponen | null => {
+        if (c.kode === "mesin") {
+          const teratas = mesinList[0];
+          return teratas
+            ? { ...c, rasio: teratas.rasio, estimasi: false, jumlah_penjual: undefined }
+            : null;
+        }
+        const entri = Object.entries(rasioKomponen).find(([k]) => k.startsWith(`${c.id}|`));
+        return entri ? { ...c, ...entri[1] } : null;
+      })
+      .filter((x): x is SpesimenKomponen => x != null);
+  }, [componentTypes, rasioKomponen, mesinList]);
 
   return (
     <div className="mx-auto max-w-5xl px-5 pb-24">
@@ -397,49 +406,26 @@ export function ProdukClient({
         )}
       </section>
 
-      {mesinList.length > 0 && (
-        <section className="border-b border-border py-10">
-          <h2 className="mb-1 text-xl font-bold tracking-tight">Nilai mesin menurut fungsi yang hidup</h2>
-          <p className="mb-6 max-w-prose text-sm text-muted-foreground">
-            Mesin tidak hidup atau mati. Ia diperdagangkan menurut fungsi apa yang masih jalan, dan selisih antar tingkat adalah harga
-            dari satu fungsi.
-          </p>
-          {mesinList.map((g) => (
-            <div key={g.id} className="grid grid-cols-[180px_1fr_auto] items-center gap-3 border-t border-border py-2.5 text-sm first:border-t-0">
-              <span>{g.nama}</span>
-              <span className="h-3.5 bg-muted">
-                <span className="block h-full bg-foreground" style={{ width: `${(g.dipinjam.rasio / mesinTertinggi) * 100}%` }} />
-              </span>
-              <span className="text-right font-semibold">
-                {hargaUnitStandar != null ? rupiah(Math.round(g.dipinjam.rasio * hargaUnitStandar)) : `${persen(g.dipinjam.rasio)}%`}
-                {g.dipinjam.estimasi && <span className="ml-1 text-[10px] font-normal text-muted-foreground">estimasi</span>}
-              </span>
-            </div>
-          ))}
-        </section>
-      )}
-
-      {nilaiKomponenList.length > 0 && (
+      {spesimenList.length > 0 && (
         <section className="border-b border-border py-10">
           <h2 className="mb-1 text-xl font-bold tracking-tight">Nilai per komponen</h2>
           <p className="mb-6 max-w-prose text-sm text-muted-foreground">
-            Komponen diurutkan dari rasio terbesar. Rupiahnya dihitung dari harga unit terkini, jadi ikut segar ketika harga unit
-            bergerak.
+            Unit bekas adalah jumlah dari part-partnya. Disusun dari yang paling bernilai, jadi membaca bingkai ini dari kiri atas sama
+            dengan membaca peringkat nilainya. Tekan satu spesimen untuk rinciannya.
           </p>
-          {nilaiKomponenList.map((c) => (
-            <div key={c.id} className="grid grid-cols-[180px_1fr_auto] items-center gap-3 border-t border-border py-2.5 text-sm first:border-t-0">
-              <span>{c.nama}</span>
-              <span className="h-3.5 bg-muted">
-                <span className="block h-full bg-foreground" style={{ width: `${Math.min(c.dipinjam.rasio * 100 * 3, 100)}%` }} />
-              </span>
-              <span className="text-right">
-                <span className="font-semibold">{hargaUnitStandar != null ? rupiah(Math.round(c.dipinjam.rasio * hargaUnitStandar)) : "—"}</span>
-                <span className="block text-[11px] text-muted-foreground">
-                  {persen(c.dipinjam.rasio)}%{c.dipinjam.estimasi ? " · estimasi" : ` · ${c.dipinjam.jumlah_penjual} penjual`}
-                </span>
-              </span>
-            </div>
-          ))}
+          <Framewall
+            judul={`${produk.model} ${produk.varian}`}
+            subjudul={
+              hargaUnitStandar != null && unitAcuan
+                ? `nilai part dihitung dari harga unit ${unitAcuan.label.toLowerCase()} ${rupiah(hargaUnitStandar)}`
+                : "belum ada harga unit terpantau sebagai dasar perhitungan"
+            }
+            hargaUnit={hargaUnitStandar}
+            spesimen={spesimenList}
+            gradeMesin={mesinList}
+            aktif={spesimenAktif}
+            onPilih={setSpesimenAktif}
+          />
         </section>
       )}
 

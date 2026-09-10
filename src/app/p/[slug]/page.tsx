@@ -133,8 +133,14 @@ export default async function ProdukPage({ params }: { params: Promise<{ slug: s
       siblingVarian={(siblingVarian ?? []).map((s) => ({ slug: s.slug, varian: s.varian }))}
       tangga={tangga}
       rasioKomponen={Object.fromEntries(rasioKomponenMap)}
-      componentTypes={(componentTypes ?? []).map((c) => ({ id: c.id, kode: c.kode, nama: c.nama }))}
-      boardGrades={(boardGrades ?? []).map((b) => ({ id: b.id, kode: b.kode, nama: b.nama }))}
+      componentTypes={(componentTypes ?? []).map((c) => ({
+        id: c.id,
+        kode: c.kode,
+        nama: c.nama,
+        gambar: c.gambar,
+        penjelasan: c.penjelasan,
+      }))}
+      boardGrades={(boardGrades ?? []).map((b) => ({ id: b.id, kode: b.kode, nama: b.nama, penjelasan: b.penjelasan }))}
       seriJual={seriJual}
       seriBeli={seriBeli}
       sinyal={sinyalUtama ? { kode: sinyalUtama.kode, judul: sinyalUtama.judul, alasan: sinyalUtama.alasan } : null}

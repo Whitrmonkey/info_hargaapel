@@ -186,24 +186,30 @@ export type Database = {
       }
       component_types: {
         Row: {
+          gambar: string | null
           id: string
           kategori_grade: string
           kode: string
           nama: string
+          penjelasan: string | null
           urutan: number
         }
         Insert: {
+          gambar?: string | null
           id?: string
           kategori_grade: string
           kode: string
           nama: string
+          penjelasan?: string | null
           urutan: number
         }
         Update: {
+          gambar?: string | null
           id?: string
           kategori_grade?: string
           kode?: string
           nama?: string
+          penjelasan?: string | null
           urutan?: number
         }
         Relationships: []
