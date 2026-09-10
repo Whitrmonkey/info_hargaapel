@@ -2,11 +2,14 @@ import { createClient } from "@/lib/supabase/server";
 import { kelompokkanPasaran, type Garansi, type Grade, type Kondisi, type ObservasiHarga } from "@/lib/pasaran";
 import { CatatForm } from "./catat-form";
 
+function hariLaluIso(n: number): string {
+  return new Date(Date.now() - n * 86_400_000).toISOString();
+}
+
 export default async function CatatPage() {
   const supabase = await createClient();
-  const batas30Hari = new Date(Date.now() - 30 * 86_400_000).toISOString();
-
-  const batasBeli30Hari = new Date(Date.now() - 30 * 86_400_000).toISOString();
+  const batas30Hari = hariLaluIso(30);
+  const batasBeli30Hari = hariLaluIso(30);
 
   const [{ data: produk }, { data: seller }, { data: observasi30Hari }, { data: hargaTerkini }, { data: sisiBeli }] =
     await Promise.all([

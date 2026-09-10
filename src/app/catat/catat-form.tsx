@@ -71,7 +71,12 @@ export function CatatForm({
   const sedangFlush = useRef(false);
 
   useEffect(() => {
+    // Sengaja dibaca setelah mount, bukan lewat initializer useState --
+    // localStorage tidak ada saat SSR, dan initializer yang beda hasil antara
+    // server/klien memicu hydration mismatch. Satu render ekstra di sini
+    // lebih aman daripada itu.
     const tersimpan = localStorage.getItem(KEY_TOKO);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (tersimpan) setTokoId(tersimpan);
     setAntrean(bacaAntrean().length);
   }, []);

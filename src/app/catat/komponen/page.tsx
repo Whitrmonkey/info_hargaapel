@@ -1,9 +1,13 @@
 import { createClient } from "@/lib/supabase/server";
 import { CatatKomponenForm } from "./catat-komponen-form";
 
+function hariLaluIso(n: number): string {
+  return new Date(Date.now() - n * 86_400_000).toISOString();
+}
+
 export default async function CatatKomponenPage() {
   const supabase = await createClient();
-  const batas30Hari = new Date(Date.now() - 30 * 86_400_000).toISOString();
+  const batas30Hari = hariLaluIso(30);
 
   const [{ data: produk }, { data: seller }, { data: observasi30Hari }, { data: componentTypes }, { data: boardGrades }, { data: partGrades }] =
     await Promise.all([

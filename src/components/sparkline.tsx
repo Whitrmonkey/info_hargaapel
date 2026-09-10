@@ -42,8 +42,12 @@ export function Sparkline({ seri, width = 120, height = 32 }: { seri: TitikSeri[
   );
 }
 
+function jamSejak(observedAt: string): number {
+  return (Date.now() - new Date(observedAt).getTime()) / 3_600_000;
+}
+
 export function TitikKesegaran({ observedAt }: { observedAt: string }) {
-  const jam = (Date.now() - new Date(observedAt).getTime()) / 3_600_000;
+  const jam = jamSejak(observedAt);
   const kelas = jam < 48 ? "bg-murah" : jam < 168 ? "bg-amber-500" : "bg-muted-foreground/40";
   return <span className={`inline-block h-1.5 w-1.5 rounded-full ${kelas}`} aria-hidden />;
 }

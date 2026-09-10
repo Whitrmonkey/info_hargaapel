@@ -71,14 +71,19 @@ export function CatatKomponenForm({
   const [status, setStatus] = useState<
     | { tipe: "idle" }
     | { tipe: "menyimpan" }
-    | { tipe: "tersimpan"; posisi: Awaited<ReturnType<typeof simpanHargaKomponen>>["posisi"] }
+    | { tipe: "tersimpan"; posisi: Awaited<ReturnType<typeof simpanHargaKomponen>>["posisi"]; harga: number }
     | { tipe: "antre" }
     | { tipe: "error"; pesan: string }
   >({ tipe: "idle" });
   const sedangFlush = useRef(false);
 
   useEffect(() => {
+    // Sengaja dibaca setelah mount, bukan lewat initializer useState --
+    // localStorage tidak ada saat SSR, dan initializer yang beda hasil antara
+    // server/klien memicu hydration mismatch. Satu render ekstra di sini
+    // lebih aman daripada itu.
     const tersimpan = localStorage.getItem(KEY_TOKO);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (tersimpan) setTokoId(tersimpan);
     setAntrean(bacaAntrean().length);
   }, []);
@@ -131,7 +136,7 @@ export function CatatKomponenForm({
     setHargaTeks("");
     try {
       const hasil = await simpanHargaKomponen(input);
-      setStatus({ tipe: "tersimpan", posisi: hasil.posisi });
+      setStatus({ tipe: "tersimpan", posisi: hasil.posisi, harga: input.harga });
     } catch (e) {
       if (!navigator.onLine) {
         const item: ItemAntrean = { ...input, idLokal: crypto.randomUUID() };
@@ -239,7 +244,7 @@ export function CatatKomponenForm({
       <div className="pt-2 text-sm">
         {status.tipe === "tersimpan" && (
           <p className="text-murah">
-            Tersimpan.{" "}
+            Tersimpan {rupiah(status.harga)}.{" "}
             {status.posisi
               ? `Rasio terhadap harga unit sekitar ${Math.round(status.posisi.rasio * 100)}% dari ${status.posisi.jumlah_penjual} penjual.`
               : "Belum cukup data (minimal 3 penjual) untuk menghitung rasio."}

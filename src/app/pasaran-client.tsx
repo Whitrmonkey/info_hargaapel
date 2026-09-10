@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import type { BidAsk, Garansi, Grade, GrupPasaran, Kondisi, ObservasiHarga, Vonis } from "@/lib/pasaran";
 import { useRealtimeObservasi } from "@/lib/realtime/use-realtime-observasi";
 import { TombolSaluranWa } from "@/components/tombol-saluran-wa";
@@ -109,12 +110,12 @@ export function PasaranClient({
         <header className="flex items-baseline justify-between gap-4 border-b border-foreground py-5">
           <span className="text-xl font-bold tracking-tight">hargaapel</span>
           <nav className="flex items-center gap-4 text-xs">
-            <a href="/servis" className="text-muted-foreground underline underline-offset-2 hover:text-foreground">
+            <Link href="/servis" className="text-muted-foreground underline underline-offset-2 hover:text-foreground">
               Servis
-            </a>
-            <a href="/cek-harga" className="text-muted-foreground underline underline-offset-2 hover:text-foreground">
+            </Link>
+            <Link href="/cek-harga" className="text-muted-foreground underline underline-offset-2 hover:text-foreground">
               Cek harga servis
-            </a>
+            </Link>
           </nav>
           <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <span className="inline-block h-1.5 w-1.5 rounded-full bg-murah" aria-hidden />
@@ -218,9 +219,9 @@ export function PasaranClient({
                 <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <h2 className="text-lg font-semibold tracking-tight">
-                      <a href={`/p/${info.slug}`} className="hover:underline">
+                      <Link href={`/p/${info.slug}`} className="hover:underline">
                         {info.model} {info.varian}
-                      </a>
+                      </Link>
                     </h2>
                     <div className="mt-1.5 flex flex-wrap gap-1.5">
                       <Tag>{LABEL_KONDISI[g.kondisi]}</Tag>
@@ -335,22 +336,22 @@ export function PasaranClient({
           <p>Bukan saran keuangan. Harga bisa berubah. Harga yang ditampilkan adalah yang terpantau, bukan yang dianjurkan.</p>
           <p>
             Kontributor:{" "}
-            <a href="/catat" className="underline underline-offset-2 hover:text-foreground">
+            <Link href="/catat" className="underline underline-offset-2 hover:text-foreground">
               catat harga device
-            </a>{" "}
+            </Link>{" "}
             ·{" "}
-            <a href="/catat/servis" className="underline underline-offset-2 hover:text-foreground">
+            <Link href="/catat/servis" className="underline underline-offset-2 hover:text-foreground">
               catat harga servis
-            </a>{" "}
+            </Link>{" "}
             ·{" "}
-            <a href="/catat/komponen" className="underline underline-offset-2 hover:text-foreground">
+            <Link href="/catat/komponen" className="underline underline-offset-2 hover:text-foreground">
               catat harga komponen
-            </a>
+            </Link>
           </p>
           <p>
-            <a href="/masuk" className="underline underline-offset-2 hover:text-foreground">
+            <Link href="/masuk" className="underline underline-offset-2 hover:text-foreground">
               Mau dikabari kalau harga turun? Masuk
-            </a>{" "}
+            </Link>{" "}
             · <TombolSaluranWa />
           </p>
         </footer>
