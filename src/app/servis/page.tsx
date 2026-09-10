@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { ServisPicker } from "./servis-picker";
+import { FooterLegal } from "@/components/footer-legal";
 
 export default async function ServisPage() {
   const supabase = await createClient();
@@ -20,6 +21,7 @@ export default async function ServisPage() {
         <p className="mb-1 text-sm text-muted-foreground">Servis</p>
         <h1 className="mb-8 text-2xl font-bold tracking-tight sm:text-3xl">Cari sebaran harga servis</h1>
         <ServisPicker produk={produk ?? []} jenis={jenis ?? []} />
+        <FooterLegal />
       </div>
     </div>
   );

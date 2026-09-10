@@ -44,18 +44,21 @@ export async function ambilSeriServis(params: { productId: string; serviceTypeId
 
   let query = supabase
     .from("service_observations")
-    .select("observed_at, harga")
+    .select("id, observed_at, harga, koreksi_atas")
     .eq("product_id", params.productId)
     .eq("service_type_id", params.serviceTypeId)
     .eq("termasuk_jasa", true)
-    .is("koreksi_atas", null)
     .gte("observed_at", dari);
   query = params.partGradeId ? query.eq("part_grade_id", params.partGradeId) : query.is("part_grade_id", null);
 
   const { data } = await query;
+  // koreksi_atas diisi di baris koreksi (baru), bukan di baris lama yang
+  // dikoreksi -- buang baris yang sudah dirujuk sebagai koreksi_atas oleh
+  // baris lain, bukan baris yang koreksi_atas-nya sendiri null.
+  const tertimpa = new Set((data ?? []).map((o) => o.koreksi_atas).filter((v): v is number => v != null));
   const perHari = new Map<string, number[]>();
   for (const o of data ?? []) {
-    if (o.observed_at == null || o.harga == null) continue;
+    if (o.observed_at == null || o.harga == null || o.id == null || tertimpa.has(o.id)) continue;
     const tgl = o.observed_at.slice(0, 10);
     const arr = perHari.get(tgl) ?? [];
     arr.push(o.harga);

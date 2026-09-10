@@ -8,6 +8,7 @@ import { ambilSeriServis } from "@/lib/data/ambil-seri";
 import { JUDUL_KELAYAKAN, pertanyaanUntukKategori } from "@/lib/salinan-servis";
 import { BagianGradeView } from "@/components/bagian-grade";
 import { GrafikDuaSeri } from "@/components/grafik-dua-seri";
+import { FooterLegal } from "@/components/footer-legal";
 
 const rupiah = (n: number) => "Rp " + n.toLocaleString("id-ID");
 
@@ -27,9 +28,9 @@ export default async function DetailServisPage({
 
   const [bagian, { data: workshopSemua }] = await Promise.all([
     ambilSebaranPerGrade(produk.id, jenisServis),
-    supabase.from("workshops").select("id, nama"),
+    supabase.from("workshops").select("id, area"),
   ]);
-  const namaWorkshop = new Map((workshopSemua ?? []).map((w) => [w.id, w.nama]));
+  const areaWorkshop = new Map((workshopSemua ?? []).map((w) => [w.id, w.area]));
 
   const hargaUnit = await ambilHargaUnitSecondStandar(produk.id);
   const representatif = bagian.filter((b) => b.sebaran).sort((a, b) => (b.sebaran!.jumlah_bengkel) - (a.sebaran!.jumlah_bengkel))[0];
@@ -86,7 +87,7 @@ export default async function DetailServisPage({
         ) : (
           <div className="space-y-6">
             {bagian.map((b) => (
-              <BagianGradeView key={b.partGradeId ?? "board"} bagian={b} namaWorkshop={namaWorkshop} />
+              <BagianGradeView key={b.partGradeId ?? "board"} bagian={b} areaWorkshop={areaWorkshop} />
             ))}
           </div>
         )}
@@ -110,6 +111,8 @@ export default async function DetailServisPage({
             Ada harga yang ditawarkan? Cek di sini →
           </Link>
         </div>
+
+        <FooterLegal />
       </div>
     </div>
   );

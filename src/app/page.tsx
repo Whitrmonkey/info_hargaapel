@@ -31,6 +31,10 @@ export default async function Home() {
     .map((o) => {
       const p = productById.get(o.product_id)!;
       const s = sellerById.get(o.seller_id)!;
+      // Penjual hasil pencatatan manual TIDAK PERNAH disebut namanya di
+      // halaman publik (aturan keras 5) -- nama dan tautan hanya dikirim ke
+      // klien untuk sumber yang menerbitkan harganya sendiri (scraper).
+      const bisaDisebut = o.sumber === "scraper";
       return {
         id: o.id,
         product_id: o.product_id,
@@ -42,12 +46,13 @@ export default async function Home() {
         harga: o.harga,
         observed_at: o.observed_at,
         perlu_verifikasi: o.perlu_verifikasi ?? false,
-        url: o.url,
+        url: bisaDisebut ? o.url : null,
         model: p.model,
         varian: p.varian,
         kategori: p.kategori,
         slug: p.slug,
-        toko: s.nama,
+        toko: bisaDisebut ? s.nama : null,
+        bisaDisebut,
         tipe_toko: s.tipe,
         area: s.area,
       };

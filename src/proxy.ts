@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const BUTUH_KONTRIBUTOR = ["/catat", "/catat/servis"];
+const BUTUH_KONTRIBUTOR_PREFIX = "/catat";
 const BUTUH_ADMIN_PREFIX = "/admin";
 
 export async function proxy(request: NextRequest) {
@@ -23,7 +23,7 @@ export async function proxy(request: NextRequest) {
   );
 
   const { pathname } = request.nextUrl;
-  const perluKontributor = BUTUH_KONTRIBUTOR.includes(pathname);
+  const perluKontributor = pathname.startsWith(BUTUH_KONTRIBUTOR_PREFIX);
   const perluAdmin = pathname.startsWith(BUTUH_ADMIN_PREFIX);
   if (!perluKontributor && !perluAdmin) return response;
 
@@ -45,5 +45,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/catat", "/catat/servis", "/admin/:path*"],
+  matcher: ["/catat/:path*", "/admin/:path*"],
 };

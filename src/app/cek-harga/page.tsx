@@ -5,7 +5,7 @@ import { ambilHargaUnitSecondStandar } from "@/lib/data/harga-unit";
 import { ambilSebaranPerGrade } from "@/lib/data/sebaran-per-grade";
 import { JUDUL_KELAYAKAN, pertanyaanUntukKategori } from "@/lib/salinan-servis";
 import { BagianGradeView } from "@/components/bagian-grade";
-import { TombolSaluranWa } from "@/components/tombol-saluran-wa";
+import { FooterLegal } from "@/components/footer-legal";
 import { pantauServis } from "./actions";
 
 const rupiah = (n: number) => "Rp " + n.toLocaleString("id-ID");
@@ -45,10 +45,10 @@ export default async function CekHargaPage({
     if (produk && jenisServis) {
       const [bagian, { data: workshopSemua }, hargaUnit] = await Promise.all([
         ambilSebaranPerGrade(produk.id, jenisServis),
-        supabase.from("workshops").select("id, nama"),
+        supabase.from("workshops").select("id, area"),
         ambilHargaUnitSecondStandar(produk.id),
       ]);
-      const namaWorkshop = new Map((workshopSemua ?? []).map((w) => [w.id, w.nama]));
+      const areaWorkshop = new Map((workshopSemua ?? []).map((w) => [w.id, w.area]));
       const representatif = bagian.filter((b) => b.sebaran).sort((a, b) => b.sebaran!.jumlah_bengkel - a.sebaran!.jumlah_bengkel)[0];
       const kelayakan = representatif?.sebaran ? hitungKelayakan(representatif.sebaran.p50, hargaUnit) : null;
       const pertanyaan = pertanyaanUntukKategori(jenisServis.kategori);
@@ -72,7 +72,7 @@ export default async function CekHargaPage({
           ) : (
             <div className="space-y-4">
               {bagian.map((b) => (
-                <BagianGradeView key={b.partGradeId ?? "board"} bagian={b} namaWorkshop={namaWorkshop} tanda={harga!} />
+                <BagianGradeView key={b.partGradeId ?? "board"} bagian={b} areaWorkshop={areaWorkshop} tanda={harga!} />
               ))}
             </div>
           )}
@@ -192,9 +192,7 @@ export default async function CekHargaPage({
 
         {jawaban}
 
-        <div className="mt-10 border-t border-border pt-4 text-xs text-muted-foreground">
-          <TombolSaluranWa />
-        </div>
+        <FooterLegal />
       </div>
     </div>
   );

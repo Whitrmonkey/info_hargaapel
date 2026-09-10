@@ -47,12 +47,16 @@ export async function hargaSaatIniUntukWatchlist(
     .from("service_observations")
     .select("*")
     .eq("product_id", w.product_id)
-    .eq("service_type_id", w.service_type_id)
-    .is("koreksi_atas", null);
+    .eq("service_type_id", w.service_type_id);
+
+  // koreksi_atas diisi di baris koreksi (baru), bukan di baris lama yang
+  // dikoreksi -- buang baris yang sudah dirujuk sebagai koreksi_atas oleh
+  // baris lain, bukan baris yang koreksi_atas-nya sendiri null.
+  const tertimpa = new Set((data ?? []).map((o) => o.koreksi_atas).filter((v): v is number => v != null));
 
   const observasi: ObservasiServis[] = (data ?? [])
     .filter((o): o is typeof o & { id: number; workshop_id: string; harga: number; observed_at: string } =>
-      o.id != null && o.workshop_id != null && o.harga != null && o.observed_at != null,
+      o.id != null && o.workshop_id != null && o.harga != null && o.observed_at != null && !tertimpa.has(o.id),
     )
     .filter((o) => (o.part_grade_id ?? null) === (w.part_grade_id ?? null))
     .map((o) => ({

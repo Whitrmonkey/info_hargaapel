@@ -16,7 +16,11 @@ export interface ItemGabungan extends ObservasiHarga {
   varian: string;
   kategori: string;
   slug: string;
-  toko: string;
+  // Hanya terisi untuk sumber yang menerbitkan harganya sendiri (scraper).
+  // Untuk pencatatan manual, ini selalu null -- namanya tidak pernah
+  // dikirim ke klien sama sekali (aturan keras 5).
+  toko: string | null;
+  bisaDisebut: boolean;
   tipe_toko: string;
   area: string;
   url: string | null;
@@ -283,12 +287,12 @@ export function PasaranClient({
                         <div className={`text-sm font-semibold ${warnaVonis(it.vonis)}`}>{rupiah(it.harga)}</div>
                         <div className="min-w-0 text-sm">
                           <div className="flex items-center gap-1.5">
-                            {it.url ? (
+                            {it.bisaDisebut && it.url && it.toko ? (
                               <a href={it.url} target="_blank" rel="noopener noreferrer" className="truncate underline underline-offset-2">
                                 {it.toko}
                               </a>
                             ) : (
-                              <span className="truncate">{it.toko}</span>
+                              <span className="truncate">{it.area}</span>
                             )}
                             {it.perlu_verifikasi && (
                               <span
@@ -301,7 +305,7 @@ export function PasaranClient({
                           </div>
                           <div className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">
                             <span className={`h-1.5 w-1.5 rounded-full ${segar.kelas}`} aria-hidden />
-                            {it.area} · dicek {segar.teks}
+                            {it.bisaDisebut ? `${it.area} · ` : ""}dicek {segar.teks}
                           </div>
                         </div>
                         <div className={`text-xs font-medium whitespace-nowrap ${warnaVonis(it.vonis)}`}>
