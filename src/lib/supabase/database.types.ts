@@ -69,6 +69,145 @@ export type Database = {
           },
         ]
       }
+      board_grades: {
+        Row: {
+          id: string
+          kode: string
+          nama: string
+          penjelasan: string
+          urutan: number
+        }
+        Insert: {
+          id?: string
+          kode: string
+          nama: string
+          penjelasan: string
+          urutan: number
+        }
+        Update: {
+          id?: string
+          kode?: string
+          nama?: string
+          penjelasan?: string
+          urutan?: number
+        }
+        Relationships: []
+      }
+      component_observations: {
+        Row: {
+          board_grade_id: string | null
+          catatan: string | null
+          component_type_id: string
+          dicatat_by: string | null
+          harga: number
+          id: number
+          koreksi_atas: number | null
+          observed_at: string
+          part_grade_id: string | null
+          perlu_verifikasi: boolean
+          product_id: string
+          seller_id: string
+          sumber: string
+        }
+        Insert: {
+          board_grade_id?: string | null
+          catatan?: string | null
+          component_type_id: string
+          dicatat_by?: string | null
+          harga: number
+          id?: number
+          koreksi_atas?: number | null
+          observed_at?: string
+          part_grade_id?: string | null
+          perlu_verifikasi?: boolean
+          product_id: string
+          seller_id: string
+          sumber: string
+        }
+        Update: {
+          board_grade_id?: string | null
+          catatan?: string | null
+          component_type_id?: string
+          dicatat_by?: string | null
+          harga?: number
+          id?: number
+          koreksi_atas?: number | null
+          observed_at?: string
+          part_grade_id?: string | null
+          perlu_verifikasi?: boolean
+          product_id?: string
+          seller_id?: string
+          sumber?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "component_observations_board_grade_id_fkey"
+            columns: ["board_grade_id"]
+            isOneToOne: false
+            referencedRelation: "board_grades"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "component_observations_component_type_id_fkey"
+            columns: ["component_type_id"]
+            isOneToOne: false
+            referencedRelation: "component_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "component_observations_koreksi_atas_fkey"
+            columns: ["koreksi_atas"]
+            isOneToOne: false
+            referencedRelation: "component_observations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "component_observations_part_grade_id_fkey"
+            columns: ["part_grade_id"]
+            isOneToOne: false
+            referencedRelation: "part_grades"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "component_observations_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "component_observations_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "sellers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      component_types: {
+        Row: {
+          id: string
+          kategori_grade: string
+          kode: string
+          nama: string
+          urutan: number
+        }
+        Insert: {
+          id?: string
+          kategori_grade: string
+          kode: string
+          nama: string
+          urutan: number
+        }
+        Update: {
+          id?: string
+          kategori_grade?: string
+          kode?: string
+          nama?: string
+          urutan?: number
+        }
+        Relationships: []
+      }
       fx_rates: {
         Row: {
           tanggal: string
@@ -234,9 +373,45 @@ export type Database = {
           },
         ]
       }
+      product_colors: {
+        Row: {
+          catatan: string | null
+          hex: string
+          id: string
+          nama: string
+          product_id: string
+          rilis_at: string | null
+        }
+        Insert: {
+          catatan?: string | null
+          hex: string
+          id?: string
+          nama: string
+          product_id: string
+          rilis_at?: string | null
+        }
+        Update: {
+          catatan?: string | null
+          hex?: string
+          id?: string
+          nama?: string
+          product_id?: string
+          rilis_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_colors_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           aktif: boolean
+          bentuk: Json
           created_at: string
           id: string
           kategori: string
@@ -248,6 +423,7 @@ export type Database = {
         }
         Insert: {
           aktif?: boolean
+          bentuk?: Json
           created_at?: string
           id?: string
           kategori: string
@@ -259,6 +435,7 @@ export type Database = {
         }
         Update: {
           aktif?: boolean
+          bentuk?: Json
           created_at?: string
           id?: string
           kategori?: string
@@ -480,6 +657,7 @@ export type Database = {
       }
       service_types: {
         Row: {
+          abaikan_rasio: boolean
           butuh_grade: boolean
           deskripsi: string | null
           id: string
@@ -489,6 +667,7 @@ export type Database = {
           tingkat: number
         }
         Insert: {
+          abaikan_rasio?: boolean
           butuh_grade?: boolean
           deskripsi?: string | null
           id?: string
@@ -498,6 +677,7 @@ export type Database = {
           tingkat: number
         }
         Update: {
+          abaikan_rasio?: boolean
           butuh_grade?: boolean
           deskripsi?: string | null
           id?: string
@@ -825,6 +1005,49 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "price_observations_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rasio_komponen: {
+        Row: {
+          board_grade_id: string | null
+          component_type_id: string | null
+          harga_komponen: number | null
+          harga_unit: number | null
+          jumlah_penjual: number | null
+          part_grade_id: string | null
+          product_id: string | null
+          rasio: number | null
+          terakhir: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "component_observations_board_grade_id_fkey"
+            columns: ["board_grade_id"]
+            isOneToOne: false
+            referencedRelation: "board_grades"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "component_observations_component_type_id_fkey"
+            columns: ["component_type_id"]
+            isOneToOne: false
+            referencedRelation: "component_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "component_observations_part_grade_id_fkey"
+            columns: ["part_grade_id"]
+            isOneToOne: false
+            referencedRelation: "part_grades"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "component_observations_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
