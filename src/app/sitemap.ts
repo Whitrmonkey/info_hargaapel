@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { createClient } from "@/lib/supabase/server";
+import { KELUARGA } from "@/lib/keluarga";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = process.env.NEXT_PUBLIC_SITE_URL ?? "https://hargaapel.com";
@@ -18,6 +19,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/servis`, changeFrequency: "daily", priority: 0.8 },
     { url: `${base}/cek-harga`, changeFrequency: "daily", priority: 0.8 },
     { url: `${base}/hitung`, changeFrequency: "weekly", priority: 0.6 },
+    ...Object.keys(KELUARGA).map((k) => ({
+      url: `${base}/${k}`,
+      changeFrequency: "daily" as const,
+      priority: 0.7,
+    })),
   ];
 
   const tokoUrls: MetadataRoute.Sitemap = Array.from(

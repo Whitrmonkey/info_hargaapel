@@ -110,6 +110,9 @@ export function PasaranClient({
         <header className="flex items-baseline justify-between gap-4 border-b border-foreground py-5">
           <span className="text-xl font-bold tracking-tight">hargaapel</span>
           <nav className="flex items-center gap-4 text-xs">
+            <Link href="/iphone" className="text-muted-foreground underline underline-offset-2 hover:text-foreground">
+              iPhone
+            </Link>
             <Link href="/servis" className="text-muted-foreground underline underline-offset-2 hover:text-foreground">
               Servis
             </Link>
