@@ -323,7 +323,7 @@ export function ProdukClient({
                 disabled={kosong}
                 aria-pressed={aktifBaris}
                 onClick={() => setBanding(t.kode)}
-                className={`grid grid-cols-[1fr_auto_auto] items-center gap-3 border-t border-border py-3 text-left first:border-t-0 disabled:cursor-default disabled:opacity-50 ${aktifBaris ? "bg-muted/50" : "hover:bg-muted/30"}`}
+                className={`grid grid-cols-[auto_1fr_auto] items-center gap-3 border-t border-border py-3 text-left first:border-t-0 disabled:cursor-default disabled:opacity-50 ${aktifBaris ? "bg-muted/50" : "hover:bg-muted/30"}`}
               >
                 <span className="text-sm">
                   {t.label}
@@ -333,7 +333,7 @@ export function ProdukClient({
                   <span className="col-span-2 text-xs italic text-muted-foreground">tidak tersedia</span>
                 ) : (
                   <>
-                    <span className="hidden h-4 w-32 bg-muted sm:block">
+                    <span className="hidden h-4 w-full bg-muted sm:block">
                       <span
                         className={`block h-full ${t.gaya === "lantai" ? "bg-muted-foreground/50" : t.gaya === "arsip" ? "bg-border" : t.gaya === "inter" ? "bg-tanah" : "bg-foreground"}`}
                         style={{ width: `${(t.harga! / maxHarga) * 100}%` }}

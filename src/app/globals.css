@@ -151,7 +151,7 @@
 
 /* Ilustrasi produk (harga-apel-produk.jsx): tanpa warna, memakai
    var(--ink)-setara, satu aset untuk mode terang dan gelap. */
-.ilo { display: block; margin: 0 auto; height: 290px; }
+.ilo { display: block; margin: 0 auto; height: 290px; max-width: 100%; }
 .ilo-body { fill: none; stroke: var(--foreground); stroke-width: 2.2; }
 .ilo-in { fill: var(--sorot); stroke: var(--border); stroke-width: 1; }
 .ilo-solid { fill: var(--foreground); }
