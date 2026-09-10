@@ -4,12 +4,12 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
 import { IlustrasiProduk, TAMPAK, type Bentuk } from "@/components/ilustrasi-produk";
-import { GrafikDuaSeri } from "@/components/grafik-dua-seri";
+import { Linimasa } from "@/components/linimasa";
 import { Framewall, type GradeMesin, type SpesimenKomponen } from "@/components/framewall";
 import { TombolSaluranWa } from "@/components/tombol-saluran-wa";
 import type { KodeTangga, TanggaHarga } from "@/lib/data/tangga-harga";
 import type { RasioTerpinjam } from "@/lib/komponen";
-import type { TitikSeri } from "@/lib/seri";
+import type { Linimasa as DataLinimasa } from "@/lib/data/linimasa";
 import type { Garansi, Grade, Kondisi } from "@/lib/pasaran";
 import { pantauDevice } from "./actions";
 
@@ -64,8 +64,7 @@ export function ProdukClient({
   rasioKomponen,
   componentTypes,
   boardGrades,
-  seriJual,
-  seriBeli,
+  linimasa,
   sinyal,
   penawaran,
   jumlahToko,
@@ -77,8 +76,7 @@ export function ProdukClient({
   rasioKomponen: Record<string, RasioTerpinjam>;
   componentTypes: Array<{ id: string; kode: string; nama: string; gambar: string | null; penjelasan: string | null }>;
   boardGrades: Array<{ id: string; kode: string; nama: string; penjelasan: string }>;
-  seriJual: TitikSeri[];
-  seriBeli: TitikSeri[] | null;
+  linimasa: DataLinimasa;
   sinyal: { kode: string; judul: string; alasan: string } | null;
   penawaran: PenawaranAnonim[];
   jumlahToko: number;
@@ -432,7 +430,10 @@ export function ProdukClient({
       <section className="border-b border-border py-10">
         <h2 className="mb-1 text-xl font-bold tracking-tight">Sejak rilis sampai sekarang</h2>
         <p className="mb-6 max-w-prose text-sm text-muted-foreground">
-          Harga pasaran 90 hari terakhir. Garis putus-putus adalah sisi beli platform buyback, kalau datanya ada.
+          Harga pasaran bulanan grade standar untuk dua jalur. Garis putus menandai September, saat generasi baru masuk pasar. Geser
+          atau sentuh grafik untuk membaca satu bulan.
+          {!linimasa.adaInter && linimasa.adaResmi && " Jalur inter belum ada datanya, jadi yang tergambar baru satu garis."}
+          {!linimasa.adaResmi && linimasa.adaInter && " Jalur resmi belum ada datanya, jadi yang tergambar baru satu garis."}
         </p>
         {sinyal && sinyal.kode !== "sepi" && (
           <div
@@ -444,7 +445,15 @@ export function ProdukClient({
             <p className="text-sm text-muted-foreground">{sinyal.alasan}</p>
           </div>
         )}
-        <GrafikDuaSeri seriA={seriJual} labelA="Jual (toko)" seriB={seriBeli} labelB="Beli (buyback)" />
+        <Linimasa titik={linimasa.titik} adaResmi={linimasa.adaResmi} adaInter={linimasa.adaInter} />
+
+        {linimasa.titik.length >= 2 && (
+          <div className="mt-6 max-w-prose border-l-2 border-tanah bg-sorot p-4 text-sm leading-relaxed">
+            Dua hal yang terlihat dari bentuk kurvanya. Penurunan paling tajam selalu jatuh di September, saat generasi baru masuk — kalau
+            berencana menjual, jual sebelum September, bukan sesudahnya. Dan jarak antara dua garis menyempit seiring umur: semakin tua
+            unitnya, semakin kecil nilai jalur garansi resmi.
+          </div>
+        )}
       </section>
 
       <section className="py-6">

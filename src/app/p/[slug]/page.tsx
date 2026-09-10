@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { hitungBidAsk, kelompokkanPasaran, type Garansi, type Grade, type Kondisi } from "@/lib/pasaran";
-import { ambilSeriPasaran } from "@/lib/data/ambil-seri";
+import { kelompokkanPasaran, type Garansi, type Grade, type Kondisi } from "@/lib/pasaran";
+import { ambilLinimasa } from "@/lib/data/linimasa";
 import { bangunTanggaHarga } from "@/lib/data/tangga-harga";
 import { ambilRasioKomponenProduk } from "@/lib/data/rasio-komponen-produk";
 import { ProdukClient, type PenawaranAnonim } from "./produk-client";
@@ -55,38 +55,9 @@ export default async function ProdukPage({ params }: { params: Promise<{ slug: s
       observed_at: o.observed_at,
       perlu_verifikasi: o.perlu_verifikasi ?? false,
     }));
-  const gabunganSemua = (observasi ?? [])
-    .filter(
-      (o): o is typeof o & { id: number; seller_id: string; harga: number; observed_at: string } =>
-        o.id != null && o.seller_id != null && o.harga != null && o.observed_at != null,
-    )
-    .map((o) => ({
-      id: o.id,
-      product_id: produk.id,
-      seller_id: o.seller_id,
-      sisi: (o.sisi as "jual" | "beli") ?? "jual",
-      kondisi: o.kondisi as Kondisi,
-      grade: o.grade as Grade | null,
-      garansi: o.garansi as Garansi,
-      harga: o.harga,
-      observed_at: o.observed_at,
-      perlu_verifikasi: o.perlu_verifikasi ?? false,
-    }));
-
   const grup = kelompokkanPasaran(gabunganJual);
-  const kandidat = [...grup].sort((a, b) => b.jumlah_toko - a.jumlah_toko);
-  let utama = kandidat[0] ?? null;
-  let seriJual: Awaited<ReturnType<typeof ambilSeriPasaran>> = [];
-  for (const g of kandidat.slice(0, 4)) {
-    const seri = await ambilSeriPasaran({ productId: produk.id, kondisi: g.kondisi, grade: g.grade, garansi: g.garansi });
-    if (seri.filter((s) => s.median != null).length >= 2) {
-      utama = g;
-      seriJual = seri;
-      break;
-    }
-  }
-  const bidAsk = grup.some((g) => g.kondisi === "second") ? hitungBidAsk(gabunganSemua, produk.id, "second") : null;
-  const seriBeli = bidAsk ? await ambilSeriPasaran({ productId: produk.id, sisi: "beli", kondisi: "second" }) : null;
+  const utama = [...grup].sort((a, b) => b.jumlah_toko - a.jumlah_toko)[0] ?? null;
+  const linimasa = await ambilLinimasa(produk);
 
   const sinyalByKey = new Map((sinyalCache ?? []).map((s) => [`${s.kondisi}|${s.grade ?? ""}|${s.garansi}`, s]));
   const sinyalUtama = utama ? sinyalByKey.get(`${utama.kondisi}|${utama.grade ?? ""}|${utama.garansi}`) ?? null : null;
@@ -141,8 +112,7 @@ export default async function ProdukPage({ params }: { params: Promise<{ slug: s
         penjelasan: c.penjelasan,
       }))}
       boardGrades={(boardGrades ?? []).map((b) => ({ id: b.id, kode: b.kode, nama: b.nama, penjelasan: b.penjelasan }))}
-      seriJual={seriJual}
-      seriBeli={seriBeli}
+      linimasa={linimasa}
       sinyal={sinyalUtama ? { kode: sinyalUtama.kode, judul: sinyalUtama.judul, alasan: sinyalUtama.alasan } : null}
       penawaran={penawaran}
       jumlahToko={jumlahToko}
