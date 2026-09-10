@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# hargaapel
 
-## Getting Started
+Situs publik pembanding harga perangkat Apple, harga jasa servis, dan nilai
+komponen bekas, untuk pembaca di Jakarta dan sekitarnya.
 
-First, run the development server:
+## Menjalankan
 
 ```bash
+npm install
+npx supabase start      # stack lokal (Postgres, Auth, Storage)
+npx supabase db reset   # jalankan migrasi + seed
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Salin `.env.example` jadi `.env.local` dan isi kredensial Supabase lokal
+(dicetak oleh `supabase start`). Buka [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Sebelum menjalankan di produksi, kerjakan bagian A di catatan setup internal:
+Supabase (wajib sebelum mulai), SMTP kustom (wajib sebelum ada pengguna asli),
+dan backup (wajib sebelum ada data yang sayang hilang).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Enam keputusan yang menentukan segalanya
 
-## Learn More
+Kalau ragu saat mengubah sesuatu, kembali ke sini.
 
-To learn more about Next.js, take a look at the following resources:
+1. **Tabel observasi append-only.** Harga tidak pernah di-update. Kalau harga
+   ditimpa, tiga bulan lagi tidak ada riwayat, dan riwayat itu satu-satunya hal
+   di proyek ini yang tidak bisa dibangun ulang dari sumber mana pun.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+2. **Yang sebanding saja yang dibandingkan.** Unit inter bukan unit resmi. Sisi
+   jual bukan sisi beli. Grade part berbeda bukan barang yang sama. Mencampurnya
+   membuat seluruh angka bohong dengan cara yang tidak kelihatan.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+3. **Harga jasa servis tidak diturunkan dari harga unit; nilai komponen bekas
+   memang diturunkan dari harga unit.** Dua hal berbeda. Yang pertama digerakkan
+   biaya part dan tenaga. Yang kedua adalah pecahan dari nilai unit, karena unit
+   bekas memang jumlah dari part-partnya.
 
-## Deploy on Vercel
+4. **Yang ditampilkan adalah harga terpantau, bukan harga yang dianjurkan.** Ini
+   menentukan apakah situs ini sumber informasi atau alat penyeragaman harga.
+   Semua kalimat vonis ditujukan ke pembeli tentang apa yang perlu ditanyakan.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+5. **Penjual hasil pencatatan manual tidak disebut namanya.** Yang menggantikan
+   nama sebagai penanda kredibilitas adalah jumlah penjual dan kapan terakhir
+   dicek. Keduanya wajib tampil di setiap angka agregat.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+6. **Iklan boleh di sekitar data, tidak pernah di dalamnya.** Seluruh nilai situs
+   ini bertumpu pada angkanya tidak dibeli. Begitu satu toko bisa membayar untuk
+   terlihat lebih murah, tidak ada lagi yang layak dijual ke pengiklan.
+
+## Yang sengaja tidak dibangun
+
+Marketplace, checkout, keranjang, akun untuk pembaca, chat penjual-pembeli,
+scraper Tokopedia dan Shopee, model machine learning untuk prediksi harga,
+provider WhatsApp berbasis sesi atau QR.
+
+## Yang belum ada dan hanya bisa diisi dari data nyata
+
+Angka harga servis dan harga komponen sengaja dikosongkan di seed. Tidak ada
+sumber online untuk memverifikasinya, jadi angka karangan tidak akan pernah
+ketahuan salahnya dan diam-diam menjadi dasar seluruh vonis. Situs menampilkan
+"belum ada data" sampai ada penjual nyata tercatat, dan itu keadaan yang benar.
+
+Foto grade — mulus, standar, ekonomis, sudut sama — juga hanya bisa datang dari
+kontributor nyata. Pertanyaan "sebenarnya mulus itu seperti apa" adalah jurang
+informasi terbesar di pasar HP bekas, dan belum ada yang menjawabnya dengan gambar.
