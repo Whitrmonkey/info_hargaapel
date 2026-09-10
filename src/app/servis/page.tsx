@@ -1,0 +1,26 @@
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
+import { ServisPicker } from "./servis-picker";
+
+export default async function ServisPage() {
+  const supabase = await createClient();
+  const [{ data: produk }, { data: jenis }] = await Promise.all([
+    supabase.from("products").select("slug, model, varian, kategori").eq("aktif", true).order("model"),
+    supabase.from("service_types").select("slug, nama, kategori").order("kategori"),
+  ]);
+
+  return (
+    <div className="mx-auto max-w-3xl px-5 pb-20">
+      <header className="border-b border-foreground py-5">
+        <Link href="/" className="text-xl font-bold tracking-tight">
+          hargaapel
+        </Link>
+      </header>
+      <div className="py-8">
+        <p className="mb-1 text-sm text-muted-foreground">Servis</p>
+        <h1 className="mb-8 text-2xl font-bold tracking-tight sm:text-3xl">Cari sebaran harga servis</h1>
+        <ServisPicker produk={produk ?? []} jenis={jenis ?? []} />
+      </div>
+    </div>
+  );
+}
