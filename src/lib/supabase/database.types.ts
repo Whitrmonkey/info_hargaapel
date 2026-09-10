@@ -413,6 +413,7 @@ export type Database = {
           aktif: boolean
           bentuk: Json
           created_at: string
+          harga_rilis: number | null
           id: string
           kategori: string
           model: string
@@ -425,6 +426,7 @@ export type Database = {
           aktif?: boolean
           bentuk?: Json
           created_at?: string
+          harga_rilis?: number | null
           id?: string
           kategori: string
           model: string
@@ -437,6 +439,7 @@ export type Database = {
           aktif?: boolean
           bentuk?: Json
           created_at?: string
+          harga_rilis?: number | null
           id?: string
           kategori?: string
           model?: string
@@ -970,6 +973,7 @@ export type Database = {
           product_id: string | null
           seller_id: string | null
           sisi: string | null
+          sumber: string | null
           url: string | null
         }
         Relationships: [

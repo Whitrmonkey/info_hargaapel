@@ -8,7 +8,7 @@ export async function pantauDevice(
   productId: string,
   kondisi: Kondisi,
   grade: Grade | null,
-  garansi: Garansi,
+  garansi: Garansi | null,
   medianSaatIni: number | null,
 ) {
   const supabase = await createClient();

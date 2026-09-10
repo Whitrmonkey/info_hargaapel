@@ -41,6 +41,8 @@
   --color-card: var(--card);
   --color-murah: var(--murah);
   --color-mahal: var(--mahal);
+  --color-sorot: var(--sorot);
+  --color-tanah: var(--tanah);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -85,6 +87,8 @@
   --sidebar-ring: oklch(0.708 0 0);
   --murah: oklch(0.5 0.14 155);
   --mahal: oklch(0.5 0.19 25);
+  --sorot: oklch(0.95 0.02 80);
+  --tanah: oklch(0.55 0.1 55);
 }
 
 .dark {
@@ -121,6 +125,8 @@
   --sidebar-ring: oklch(0.556 0 0);
   --murah: oklch(0.75 0.14 155);
   --mahal: oklch(0.72 0.19 25);
+  --sorot: oklch(0.27 0.02 80);
+  --tanah: oklch(0.7 0.1 55);
 }
 
 @layer base {
@@ -142,3 +148,17 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Ilustrasi produk (harga-apel-produk.jsx): tanpa warna, memakai
+   var(--ink)-setara, satu aset untuk mode terang dan gelap. */
+.ilo { display: block; margin: 0 auto; height: 290px; }
+.ilo-body { fill: none; stroke: var(--foreground); stroke-width: 2.2; }
+.ilo-in { fill: var(--sorot); stroke: var(--border); stroke-width: 1; }
+.ilo-solid { fill: var(--foreground); }
+.ilo-hole { fill: var(--background); }
+.ilo-lens { fill: none; stroke: var(--muted-foreground); stroke-width: 1.4; }
+.ilo-dash { fill: none; stroke: var(--border); stroke-width: 1; stroke-dasharray: 3 4; }
+.ilo-zone { fill: var(--sorot); stroke: var(--border); stroke-width: 1; }
+.ilo-hot { fill: transparent; stroke: transparent; stroke-width: 1.6; cursor: pointer; }
+.ilo-hot:hover { fill: color-mix(in oklch, var(--tanah) 16%, transparent); stroke: var(--tanah); }
+.ilo-hot.on { fill: color-mix(in oklch, var(--tanah) 16%, transparent); stroke: var(--tanah); stroke-width: 2; }
