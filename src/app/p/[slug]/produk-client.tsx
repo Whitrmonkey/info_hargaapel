@@ -6,7 +6,7 @@ import { useTheme } from "next-themes";
 import { IlustrasiProduk, TAMPAK, type Bentuk } from "@/components/ilustrasi-produk";
 import { GrafikDuaSeri } from "@/components/grafik-dua-seri";
 import { TombolSaluranWa } from "@/components/tombol-saluran-wa";
-import type { AnakTangga } from "@/lib/data/tangga-harga";
+import type { KodeTangga, TanggaHarga } from "@/lib/data/tangga-harga";
 import type { RasioTerpinjam } from "@/lib/komponen";
 import type { TitikSeri } from "@/lib/seri";
 import type { Garansi, Grade, Kondisi } from "@/lib/pasaran";
@@ -15,12 +15,12 @@ import { pantauDevice } from "./actions";
 const rupiah = (n: number) => "Rp " + n.toLocaleString("id-ID");
 const persen = (r: number) => Math.round(r * 100);
 
-const TIER_KE_GRUP: Record<string, { kondisi: Kondisi; grade: Grade | null; garansi: Garansi | null }> = {
-  baru_resmi: { kondisi: "baru", grade: null, garansi: "resmi" },
-  baru_inter: { kondisi: "baru", grade: null, garansi: "inter" },
-  mulus: { kondisi: "second", grade: "mulus", garansi: null },
-  standar: { kondisi: "second", grade: "standar", garansi: null },
-  ekonomis: { kondisi: "second", grade: "ekonomis", garansi: null },
+// Hanya anak tangga bekas yang bisa dipantau: dua yang lain adalah jangkar
+// sejarah, bukan harga yang bergerak. Grade standar dipakai karena itu yang
+// jadi angka kepala anak tangganya.
+const TIER_KE_GRUP: Partial<Record<KodeTangga, { kondisi: Kondisi; grade: Grade | null; garansi: Garansi | null }>> = {
+  bekas_resmi: { kondisi: "second", grade: "standar", garansi: "resmi" },
+  bekas_inter: { kondisi: "second", grade: "standar", garansi: "inter" },
 };
 const LABEL_KONDISI: Record<Kondisi, string> = { baru: "Baru segel", second: "Second", refurb: "Refurbished" };
 const LABEL_GARANSI: Record<Garansi, string> = { resmi: "Garansi resmi", inter: "Inter", toko: "Garansi toko" };
@@ -47,7 +47,7 @@ interface ProdukRingkas {
   kategori: string;
   slug: string;
   rilis_at: string | null;
-  harga_rilis: number | null;
+  harga_rilis_id: number | null;
   bentuk: Bentuk;
 }
 
@@ -72,7 +72,7 @@ export function ProdukClient({
   produk: ProdukRingkas;
   warna: Array<{ nama: string; hex: string; catatan: string | null }>;
   siblingVarian: Array<{ slug: string; varian: string }>;
-  tangga: AnakTangga[];
+  tangga: TanggaHarga;
   rasioKomponen: Record<string, RasioTerpinjam>;
   componentTypes: Array<{ id: string; kode: string; nama: string }>;
   boardGrades: Array<{ id: string; kode: string; nama: string }>;
@@ -86,15 +86,18 @@ export function ProdukClient({
   const [tampak, setTampak] = useState("depan");
   const [aktif, setAktif] = useState<string | null>(null);
   const [warnaTerpilih, setWarnaTerpilih] = useState(warna[0]?.nama ?? "");
-  const standarTangga = tangga.find((t) => t.kode === "standar" && t.harga != null);
-  const hargaUnitStandar = standarTangga?.harga ?? tangga.find((t) => t.kode !== "rilis" && t.harga != null)?.harga ?? null;
-  const [banding, setBanding] = useState(
-    standarTangga?.kode ?? tangga.find((t) => t.kode !== "rilis" && t.harga != null)?.kode ?? tangga[0]?.kode,
-  );
+  // Dasar semua rasio komponen: harga unit bekas jalur resmi. Kalau jalur itu
+  // belum ada datanya, pakai jalur inter -- tapi tidak pernah harga rilis,
+  // karena itu bukan harga unit yang bisa dibeli hari ini.
+  const bekasResmi = tangga.anak.find((t) => t.kode === "bekas_resmi");
+  const bekasInter = tangga.anak.find((t) => t.kode === "bekas_inter");
+  const unitAcuan = bekasResmi ?? bekasInter ?? null;
+  const hargaUnitStandar = unitAcuan?.harga ?? null;
+  const [jarakAktif, setJarakAktif] = useState(0);
   const [buka, setBuka] = useState(false);
   const [pesanPantau, setPesanPantau] = useState<string | null>(null);
 
-  async function pantauTierIni(kode: string, harga: number) {
+  async function pantauTierIni(kode: KodeTangga, harga: number) {
     const g = TIER_KE_GRUP[kode];
     if (!g) return;
     try {
@@ -123,8 +126,8 @@ export function ProdukClient({
     ? rasioKomponen[kunci(mesinType?.id ?? "", boardGrades.find((b) => b.kode === zonaMesinAktif.board_grade)?.id ?? "", null)]
     : null;
 
-  const acuan = tangga.find((t) => t.kode === banding);
-  const maxHarga = Math.max(...tangga.filter((t) => t.harga != null).map((t) => t.harga!));
+  const maxHarga = Math.max(1, ...tangga.anak.map((t) => t.harga!));
+  const jarak = tangga.jarak[Math.min(jarakAktif, tangga.jarak.length - 1)] ?? null;
 
   const nilaiKomponenList = useMemo(() => {
     return componentTypes
@@ -284,16 +287,17 @@ export function ProdukClient({
             </div>
           )}
 
-          {acuan?.harga != null && (
+          {unitAcuan?.harga != null && (
             <div>
-              <p className="text-3xl font-bold">{rupiah(acuan.harga)}</p>
+              <p className="text-3xl font-bold">{rupiah(unitAcuan.harga)}</p>
               <p className="mb-2 text-xs text-muted-foreground">
-                {acuan.label}, {jumlahToko} toko terpantau
+                {unitAcuan.label}
+                {unitAcuan.kondisi.some((k) => k.grade === "standar") ? ", grade standar" : ""} · {unitAcuan.sub}
               </p>
-              {TIER_KE_GRUP[acuan.kode] && !pesanPantau && (
+              {TIER_KE_GRUP[unitAcuan.kode] && !pesanPantau && (
                 <button
                   type="button"
-                  onClick={() => pantauTierIni(acuan.kode, acuan.harga!)}
+                  onClick={() => pantauTierIni(unitAcuan.kode, unitAcuan.harga!)}
                   className="text-xs underline underline-offset-2"
                 >
                   pantau harga ini
@@ -308,56 +312,85 @@ export function ProdukClient({
       <section className="border-b border-border py-10">
         <h2 className="mb-1 text-xl font-bold tracking-tight">Tangga harga</h2>
         <p className="mb-6 max-w-prose text-sm text-muted-foreground">
-          Seluruh pasar {produk.model} di Jabodetabek dalam satu gambar. Tekan salah satu baris untuk menjadikannya pembanding, lalu
-          lihat selisihnya ke baris lain dan apa yang sebenarnya kamu bayar di selisih itu.
+          Disusun menurut jalur masuk unit ke Indonesia, bukan menurut kondisi fisiknya. Tekan salah satu jarak untuk melihat apa yang
+          sebenarnya terkandung di dalam selisih itu.
         </p>
-        <div className="flex flex-col" role="group" aria-label="Tingkatan harga">
-          {tangga.map((t) => {
-            const kosong = t.harga == null;
-            const aktifBaris = banding === t.kode;
-            const beda = kosong || acuan?.harga == null ? null : t.harga! - acuan.harga;
-            return (
-              <button
-                key={t.kode}
-                type="button"
-                disabled={kosong}
-                aria-pressed={aktifBaris}
-                onClick={() => setBanding(t.kode)}
-                className={`grid grid-cols-[auto_1fr_auto] items-center gap-3 border-t border-border py-3 text-left first:border-t-0 disabled:cursor-default disabled:opacity-50 ${aktifBaris ? "bg-muted/50" : "hover:bg-muted/30"}`}
-              >
-                <span className="text-sm">
-                  {t.label}
-                  <span className="block text-xs text-muted-foreground">{t.sub}</span>
-                </span>
-                {kosong ? (
-                  <span className="col-span-2 text-xs italic text-muted-foreground">tidak tersedia</span>
-                ) : (
-                  <>
-                    <span className="hidden h-4 w-full bg-muted sm:block">
+
+        {tangga.anak.length === 0 ? (
+          <p className="text-sm text-muted-foreground">Belum ada harga terpantau untuk model ini.</p>
+        ) : (
+          <div className="flex flex-col">
+            {tangga.anak.map((t, i) => {
+              const berikut = tangga.anak[i + 1];
+              const indeksJarak = berikut ? tangga.jarak.findIndex((j) => j.atas === t.kode && j.bawah === berikut.kode) : -1;
+              const j = indeksJarak >= 0 ? tangga.jarak[indeksJarak] : null;
+              return (
+                <div key={t.kode}>
+                  <div className="grid grid-cols-[minmax(0,150px)_1fr_auto] items-center gap-3 py-2.5 sm:grid-cols-[minmax(0,210px)_1fr_auto]">
+                    <span className="text-sm leading-tight">
+                      {t.label}
+                      <span className="mt-0.5 block text-[11px] text-muted-foreground">{t.sub}</span>
+                    </span>
+                    <span className="hidden h-6 bg-muted sm:block">
                       <span
-                        className={`block h-full ${t.gaya === "lantai" ? "bg-muted-foreground/50" : t.gaya === "arsip" ? "bg-border" : t.gaya === "inter" ? "bg-tanah" : "bg-foreground"}`}
+                        className={`block h-full ${t.gaya === "arsip" ? "bg-border" : t.gaya === "inter" ? "bg-tanah" : "bg-foreground"}`}
                         style={{ width: `${(t.harga! / maxHarga) * 100}%` }}
                       />
                     </span>
-                    <span className="text-right text-sm font-semibold">
-                      {rupiah(t.harga!)}
-                      <span className="block text-xs font-normal text-muted-foreground">
-                        {aktifBaris ? <b>pembanding</b> : beda === 0 ? "sama" : `${beda! > 0 ? "+" : "−"}${rupiah(Math.abs(beda!))}`}
+                    <span className="text-right text-sm font-bold">{rupiah(t.harga!)}</span>
+                    {t.kondisi.length > 0 && (
+                      <span className="col-span-full flex flex-wrap gap-1.5 pb-1 text-[11px] text-muted-foreground">
+                        {t.kondisi.map((k) => (
+                          <span key={k.grade} className="rounded border border-border px-1.5 py-0.5">
+                            {LABEL_GRADE[k.grade]} {rupiah(k.median)} · {k.jumlah_toko} toko
+                          </span>
+                        ))}
                       </span>
-                    </span>
-                  </>
-                )}
-              </button>
-            );
-          })}
-        </div>
-        {acuan && (
-          <div className="mt-6 max-w-prose border-l-2 border-tanah bg-sorot p-4 text-sm leading-relaxed">
-            {acuan.naik_dari}
-            {produk.harga_rilis && acuan.harga != null && (
+                    )}
+                  </div>
+
+                  {j && (
+                    <button
+                      type="button"
+                      aria-pressed={jarakAktif === indeksJarak}
+                      onClick={() => setJarakAktif(indeksJarak)}
+                      className={`grid w-full grid-cols-[minmax(0,150px)_1fr_auto] items-center gap-3 py-1 text-left sm:grid-cols-[minmax(0,210px)_1fr_auto] ${
+                        jarakAktif === indeksJarak ? "text-tanah" : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      <span
+                        aria-hidden
+                        className={`ml-2 hidden h-5 border-l-2 border-dotted sm:block ${
+                          jarakAktif === indeksJarak ? "border-tanah" : "border-border"
+                        }`}
+                      />
+                      <span className={`text-xs ${jarakAktif === indeksJarak ? "font-semibold" : ""}`}>{j.nama}</span>
+                      <span className="text-right text-xs">
+                        {j.beda >= 0 ? "" : "−"}
+                        {rupiah(Math.abs(j.beda))}
+                      </span>
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {jarak && (
+          <div className="mt-6 max-w-prose border-l-2 border-tanah bg-sorot p-4 text-sm leading-relaxed" aria-live="polite">
+            <b>
+              {jarak.nama} — {jarak.beda >= 0 ? "" : "−"}
+              {rupiah(Math.abs(jarak.beda))}
+            </b>
+            , atau {Math.abs(persen(jarak.beda / jarak.bawahHarga))}%{" "}
+            {jarak.beda >= 0 ? "di atas" : "di bawah"} {tangga.anak.find((a) => a.kode === jarak.bawah)?.label.toLowerCase()}.{" "}
+            {jarak.ket}
+            {jarak.beda < 0 && (
               <>
                 {" "}
-                Unit ini sekarang tinggal <b>{persen(acuan.harga / produk.harga_rilis)}%</b> dari harga rilisnya.
+                Pada model ini selisihnya justru terbalik: harga daftar di luar belum termasuk pajak penjualan setempat, sementara harga
+                Indonesia sudah termasuk PPN.
               </>
             )}
           </div>

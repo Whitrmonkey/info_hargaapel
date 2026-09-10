@@ -413,9 +413,11 @@ export type Database = {
           aktif: boolean
           bentuk: Json
           created_at: string
-          harga_rilis: number | null
+          harga_rilis_global: number | null
+          harga_rilis_id: number | null
           id: string
           kategori: string
+          kurs_rilis: number | null
           model: string
           penerus_id: string | null
           rilis_at: string | null
@@ -426,9 +428,11 @@ export type Database = {
           aktif?: boolean
           bentuk?: Json
           created_at?: string
-          harga_rilis?: number | null
+          harga_rilis_global?: number | null
+          harga_rilis_id?: number | null
           id?: string
           kategori: string
+          kurs_rilis?: number | null
           model: string
           penerus_id?: string | null
           rilis_at?: string | null
@@ -439,9 +443,11 @@ export type Database = {
           aktif?: boolean
           bentuk?: Json
           created_at?: string
-          harga_rilis?: number | null
+          harga_rilis_global?: number | null
+          harga_rilis_id?: number | null
           id?: string
           kategori?: string
+          kurs_rilis?: number | null
           model?: string
           penerus_id?: string | null
           rilis_at?: string | null

@@ -126,7 +126,7 @@ export default async function ProdukPage({ params }: { params: Promise<{ slug: s
         kategori: produk.kategori,
         slug: produk.slug,
         rilis_at: produk.rilis_at,
-        harga_rilis: produk.harga_rilis,
+        harga_rilis_id: produk.harga_rilis_id,
         bentuk: (produk.bentuk as Bentuk) ?? {},
       }}
       warna={(warna ?? []).map((w) => ({ nama: w.nama, hex: w.hex, catatan: w.catatan }))}

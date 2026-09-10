@@ -12,7 +12,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
   const supabase = await createClient();
   const { data: produk } = await supabase.from("products").select("*").eq("slug", slug).single();
 
-  const tangga = produk ? (await bangunTanggaHarga(produk)).filter((t) => t.kode !== "rilis" && t.harga != null) : [];
+  const tangga = produk ? (await bangunTanggaHarga(produk)).anak : [];
   const tertinggi = tangga.length > 0 ? Math.max(...tangga.map((t) => t.harga!)) : 1;
 
   return new ImageResponse(
@@ -46,7 +46,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
                   display: "flex",
                   height: 26,
                   width: Math.max(24, Math.round((t.harga! / tertinggi) * 640)),
-                  background: t.gaya === "lantai" ? "#8A8375" : "#1B2430",
+                  background: t.gaya === "arsip" ? "#C9C5BC" : t.gaya === "inter" ? "#B8703A" : "#1B2430",
                   borderRadius: 6,
                 }}
               />
