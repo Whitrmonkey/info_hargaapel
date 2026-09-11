@@ -6,10 +6,12 @@ import { useTheme } from "next-themes";
 import { IlustrasiProduk, TAMPAK, type Bentuk } from "@/components/ilustrasi-produk";
 import { Linimasa } from "@/components/linimasa";
 import { Framewall, type GradeMesin, type SpesimenKomponen } from "@/components/framewall";
+import { BlokKomunitas } from "@/components/blok-komunitas";
 import { TombolSaluranWa } from "@/components/tombol-saluran-wa";
 import type { KodeTangga, TanggaHarga } from "@/lib/data/tangga-harga";
 import type { RasioTerpinjam } from "@/lib/komponen";
 import type { Linimasa as DataLinimasa } from "@/lib/data/linimasa";
+import type { KomunitasProduk } from "@/lib/data/komunitas-produk";
 import type { Garansi, Grade, Kondisi } from "@/lib/pasaran";
 import { pantauDevice } from "./actions";
 
@@ -65,6 +67,8 @@ export function ProdukClient({
   componentTypes,
   boardGrades,
   linimasa,
+  komunitas,
+  masuk,
   sinyal,
   penawaran,
   jumlahToko,
@@ -77,6 +81,8 @@ export function ProdukClient({
   componentTypes: Array<{ id: string; kode: string; nama: string; gambar: string | null; penjelasan: string | null }>;
   boardGrades: Array<{ id: string; kode: string; nama: string; penjelasan: string }>;
   linimasa: DataLinimasa;
+  komunitas: KomunitasProduk;
+  masuk: boolean;
   sinyal: { kode: string; judul: string; alasan: string } | null;
   penawaran: PenawaranAnonim[];
   jumlahToko: number;
@@ -455,6 +461,8 @@ export function ProdukClient({
           </div>
         )}
       </section>
+
+      <BlokKomunitas data={komunitas} masuk={masuk} />
 
       <section className="py-6">
         <button

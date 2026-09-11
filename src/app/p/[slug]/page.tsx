@@ -4,6 +4,7 @@ import { kelompokkanPasaran, type Garansi, type Grade, type Kondisi } from "@/li
 import { ambilLinimasa } from "@/lib/data/linimasa";
 import { bangunTanggaHarga } from "@/lib/data/tangga-harga";
 import { ambilRasioKomponenProduk } from "@/lib/data/rasio-komponen-produk";
+import { ambilKomunitasProduk } from "@/lib/data/komunitas-produk";
 import { ProdukClient, type PenawaranAnonim } from "./produk-client";
 import type { Bentuk } from "@/components/ilustrasi-produk";
 
@@ -57,7 +58,11 @@ export default async function ProdukPage({ params }: { params: Promise<{ slug: s
     }));
   const grup = kelompokkanPasaran(gabunganJual);
   const utama = [...grup].sort((a, b) => b.jumlah_toko - a.jumlah_toko)[0] ?? null;
-  const linimasa = await ambilLinimasa(produk);
+  const [linimasa, komunitas, { data: { user } }] = await Promise.all([
+    ambilLinimasa(produk),
+    ambilKomunitasProduk(produk.id),
+    supabase.auth.getUser(),
+  ]);
 
   const sinyalByKey = new Map((sinyalCache ?? []).map((s) => [`${s.kondisi}|${s.grade ?? ""}|${s.garansi}`, s]));
   const sinyalUtama = utama ? sinyalByKey.get(`${utama.kondisi}|${utama.grade ?? ""}|${utama.garansi}`) ?? null : null;
@@ -113,6 +118,8 @@ export default async function ProdukPage({ params }: { params: Promise<{ slug: s
       }))}
       boardGrades={(boardGrades ?? []).map((b) => ({ id: b.id, kode: b.kode, nama: b.nama, penjelasan: b.penjelasan }))}
       linimasa={linimasa}
+      komunitas={komunitas}
+      masuk={user != null}
       sinyal={sinyalUtama ? { kode: sinyalUtama.kode, judul: sinyalUtama.judul, alasan: sinyalUtama.alasan } : null}
       penawaran={penawaran}
       jumlahToko={jumlahToko}
