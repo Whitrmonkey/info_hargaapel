@@ -283,6 +283,35 @@ export type Database = {
           },
         ]
       }
+      diskusi_revisi: {
+        Row: {
+          diskusi_id: number
+          disunting_at: string
+          id: number
+          isi_lama: string
+        }
+        Insert: {
+          diskusi_id: number
+          disunting_at?: string
+          id?: number
+          isi_lama: string
+        }
+        Update: {
+          diskusi_id?: number
+          disunting_at?: string
+          id?: number
+          isi_lama?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "diskusi_revisi_diskusi_id_fkey"
+            columns: ["diskusi_id"]
+            isOneToOne: false
+            referencedRelation: "diskusi"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fx_rates: {
         Row: {
           tanggal: string
@@ -295,6 +324,27 @@ export type Database = {
         Update: {
           tanggal?: string
           usd_idr?: number
+        }
+        Relationships: []
+      }
+      kata_tahan: {
+        Row: {
+          aktif: boolean
+          catatan: string | null
+          ditambah_at: string
+          kata: string
+        }
+        Insert: {
+          aktif?: boolean
+          catatan?: string | null
+          ditambah_at?: string
+          kata: string
+        }
+        Update: {
+          aktif?: boolean
+          catatan?: string | null
+          ditambah_at?: string
+          kata?: string
         }
         Relationships: []
       }
