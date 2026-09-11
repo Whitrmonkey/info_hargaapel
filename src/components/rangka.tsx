@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
+import type { ModeData } from "@/lib/mode";
+import { ATURAN } from "@/lib/mode";
 
 // Rangka aplikasi: navigasi atas di desktop, navigasi bawah di HP.
 //
@@ -48,7 +50,7 @@ function aktif(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(href + "/");
 }
 
-export function Rangka({ masuk }: { masuk: boolean }) {
+export function Rangka({ masuk, mode }: { masuk: boolean; mode: ModeData }) {
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
 
@@ -56,8 +58,17 @@ export function Rangka({ masuk }: { masuk: boolean }) {
   // rangka di sana justru merebut ruang yang dipakai jempol.
   if (pathname.startsWith("/catat") || pathname.startsWith("/admin")) return null;
 
+  const pita = ATURAN[mode].pita;
+
   return (
     <>
+      {/* Pita mode: satu-satunya cara pembaca tahu angka di layar ini
+          buatan atau nyata. Production tidak memasang apa pun. */}
+      {pita && (
+        <div className="border-b border-tanah bg-sorot px-5 py-2 text-center text-[12px] leading-snug text-foreground sm:px-6">
+          {pita}
+        </div>
+      )}
       <header className="sticky top-0 z-20 border-b border-foreground bg-background">
         <div className="mx-auto flex max-w-[1100px] items-center gap-6 px-5 py-3 sm:px-6">
           <Link href="/" className="text-[17px] font-semibold tracking-tight">

@@ -1440,6 +1440,7 @@ export type Database = {
       }
       pasaran_harian: {
         Row: {
+          demo: boolean | null
           garansi: string | null
           grade: string | null
           jumlah_toko: number | null

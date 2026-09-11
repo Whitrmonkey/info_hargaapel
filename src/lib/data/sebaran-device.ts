@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { saringObservasi } from "@/lib/mode";
 import { kunciSebaran, sebaranDevice, type OpsiProduk, type SebaranDevice } from "@/lib/cek";
 import type { Garansi, Grade, Kondisi } from "@/lib/pasaran";
 
@@ -40,7 +41,7 @@ export async function ambilDataCek(): Promise<DataCek> {
   // unik dihitung per grup karena gerbangnya soal berapa TOKO, bukan berapa
   // baris harga -- satu toko yang mencatat sepuluh kali tetap satu toko.
   const perGrup = new Map<string, { harga: number[]; toko: Set<string> }>();
-  for (const o of observasi ?? []) {
+  for (const o of saringObservasi(observasi ?? [])) {
     if (o.product_id == null || o.harga == null || o.seller_id == null || o.garansi == null || o.kondisi == null) continue;
     if (!produkById.has(o.product_id)) continue;
     const k = kunciSebaran(o.product_id, o.kondisi, o.grade, o.garansi);

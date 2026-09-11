@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { saringObservasi } from "@/lib/mode";
 import { hitungBidAsk, kelompokkanPasaran, type Garansi, type Grade, type Kondisi } from "@/lib/pasaran";
 import { PasaranClient, type ItemGabungan } from "./pasaran-client";
 
@@ -20,7 +21,7 @@ export default async function PasaranPage() {
   const productById = new Map((products ?? []).map((p) => [p.id, p]));
   const sellerById = new Map((sellers ?? []).map((s) => [s.id, s]));
 
-  const gabungan: ItemGabungan[] = (observasi ?? [])
+  const gabungan: ItemGabungan[] = saringObservasi(observasi ?? [])
     // harga_terkini adalah view, kolomnya nullable secara tipe walau
     // `distinct on` di atas tabel non-null pada praktiknya tidak pernah null.
     .filter(

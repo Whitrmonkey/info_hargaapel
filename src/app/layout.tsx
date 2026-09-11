@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { TemaProvider } from "@/components/tema-provider";
 import { Rangka } from "@/components/rangka";
 import { createClient } from "@/lib/supabase/server";
+import { modeSekarang } from "@/lib/mode";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -35,7 +36,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col">
         <TemaProvider>
-          <Rangka masuk={user != null} />
+          <Rangka masuk={user != null} mode={modeSekarang()} />
           {children}
         </TemaProvider>
       </body>

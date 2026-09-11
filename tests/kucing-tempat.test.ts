@@ -41,6 +41,7 @@ describe("tempat kemunculan kucing", () => {
       "src/app/cek-harga/cek-client.tsx", // keadaan kosong dan data belum cukup
       "src/app/not-found.tsx", // 404
       "src/app/error.tsx", // halaman galat
+      "src/app/hitung/page.tsx", // pesan "data belum cukup" -- alasan halaman itu ditahan
     ];
     for (const berkas of berkasPemakai()) {
       expect(diizinkan, `kucing dipakai di tempat yang belum diizinkan: ${berkas}`).toContain(berkas);

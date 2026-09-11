@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { ATURAN, modeSekarang, saringObservasi } from "@/lib/mode";
 import { KELUARGA } from "@/lib/keluarga";
 import { MIN_TOKO_VONIS } from "@/lib/cek";
 
@@ -55,6 +56,7 @@ export async function ambilDataBeranda(): Promise<DataBeranda> {
     supabase
       .from("pasaran_harian")
       .select("product_id, tanggal, median, jumlah_toko")
+      .eq("demo", ATURAN[modeSekarang()].demo)
       .eq("sisi", "jual")
       .eq("kondisi", "second")
       .eq("grade", "standar")
@@ -63,7 +65,7 @@ export async function ambilDataBeranda(): Promise<DataBeranda> {
       .order("tanggal"),
     supabase
       .from("harga_terkini")
-      .select("product_id, harga, seller_id")
+      .select("product_id, harga, seller_id, sumber, catatan")
       .eq("sisi", "jual")
       .eq("kondisi", "second")
       .eq("grade", "standar")
@@ -82,7 +84,7 @@ export async function ambilDataBeranda(): Promise<DataBeranda> {
   // karena gerbangnya soal berapa toko yang sedang terpantau sekarang.
   const tokoPer = new Map<string, Set<string>>();
   const hargaPer = new Map<string, number[]>();
-  for (const o of terkini ?? []) {
+  for (const o of saringObservasi(terkini ?? [])) {
     if (o.product_id == null || o.harga == null || o.seller_id == null) continue;
     (tokoPer.get(o.product_id) ?? tokoPer.set(o.product_id, new Set()).get(o.product_id)!).add(o.seller_id);
     (hargaPer.get(o.product_id) ?? hargaPer.set(o.product_id, []).get(o.product_id)!).push(o.harga);

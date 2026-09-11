@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { saringObservasi } from "@/lib/mode";
 import { kelompokkanPasaran, type Garansi, type Grade, type Kondisi } from "@/lib/pasaran";
 import { ambilLinimasa } from "@/lib/data/linimasa";
 import { bangunTanggaHarga } from "@/lib/data/tangga-harga";
@@ -39,7 +40,7 @@ export default async function ProdukPage({ params }: { params: Promise<{ slug: s
 
   const sellerById = new Map((sellers ?? []).map((s) => [s.id, s]));
 
-  const gabunganJual = (observasi ?? [])
+  const gabunganJual = saringObservasi(observasi ?? [])
     .filter(
       (o): o is typeof o & { id: number; seller_id: string; harga: number; observed_at: string } =>
         o.id != null && o.seller_id != null && o.harga != null && o.observed_at != null && o.sisi === "jual",

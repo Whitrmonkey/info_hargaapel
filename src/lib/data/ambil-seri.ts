@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { ATURAN, modeSekarang } from "@/lib/mode";
 import { isiMaju, type TitikSeri } from "@/lib/seri";
 import { median } from "@/lib/pasaran";
 
@@ -18,6 +19,7 @@ export async function ambilSeriPasaran(params: {
   let query = supabase
     .from("pasaran_harian")
     .select("tanggal, median")
+      .eq("demo", ATURAN[modeSekarang()].demo)
     .eq("product_id", params.productId)
     .eq("sisi", params.sisi ?? "jual")
     .eq("kondisi", params.kondisi)

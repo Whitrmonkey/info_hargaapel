@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { ATURAN, modeSekarang, saringObservasi } from "@/lib/mode";
 import { kelompokkanPasaran, type Garansi, type Grade, type Kondisi } from "@/lib/pasaran";
 import { isiMaju, lajuBulanan, ringkasBulanan, type TitikHarian } from "@/lib/seri";
 import { fase, type Fase } from "@/lib/keluarga";
@@ -37,6 +38,7 @@ export async function ambilIndeksSeri(kategori: string): Promise<{ kartu: KartuS
     supabase
       .from("pasaran_harian")
       .select("product_id, tanggal, median")
+      .eq("demo", ATURAN[modeSekarang()].demo)
       .in("product_id", ids)
       .eq("sisi", "jual")
       .eq("kondisi", "second")
@@ -59,7 +61,7 @@ export async function ambilIndeksSeri(kategori: string): Promise<{ kartu: KartuS
   const kartu: KartuSeri[] = [...perModel.entries()].map(([model, varian]) => {
     const idModel = new Set(varian.map((v) => v.id));
 
-    const milik = (observasi ?? [])
+    const milik = saringObservasi(observasi ?? [])
       .filter(
         (o): o is typeof o & { id: number; product_id: string; seller_id: string; harga: number; observed_at: string } =>
           o.product_id != null &&

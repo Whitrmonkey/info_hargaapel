@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { saringObservasi } from "@/lib/mode";
 import { kelompokkanPasaran, type Garansi, type Grade, type Kondisi } from "@/lib/pasaran";
 
 // Dipakai kelayakan.ts: harga pasaran unit second grade STANDAR, sisi jual,
@@ -17,7 +18,7 @@ export async function ambilHargaUnitSecondStandar(productId: string): Promise<nu
 
   if (!data || data.length === 0) return null;
 
-  const observasi = data
+  const observasi = saringObservasi(data)
     .filter((o): o is typeof o & { id: number; seller_id: string; harga: number; observed_at: string } =>
       o.id != null && o.seller_id != null && o.harga != null && o.observed_at != null,
     )

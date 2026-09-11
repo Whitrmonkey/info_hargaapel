@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { saringObservasi } from "@/lib/mode";
 import { kelompokkanPasaran, type Garansi, type Grade, type Kondisi } from "@/lib/pasaran";
 
 export type KodeTangga = "rilis_id" | "rilis_global" | "bekas_resmi" | "bekas_inter";
@@ -75,7 +76,7 @@ export async function bangunTanggaHarga(produk: {
     .eq("sisi", "jual")
     .eq("kondisi", "second");
 
-  const jual = (observasi ?? [])
+  const jual = saringObservasi(observasi ?? [])
     .filter(
       (o): o is typeof o & { id: number; seller_id: string; harga: number; observed_at: string } =>
         o.id != null && o.seller_id != null && o.harga != null && o.observed_at != null,

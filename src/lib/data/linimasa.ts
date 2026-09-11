@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { ATURAN, modeSekarang } from "@/lib/mode";
 import { isiMaju, ringkasBulanan, type TitikHarian } from "@/lib/seri";
 
 export interface TitikLinimasa {
@@ -23,6 +24,7 @@ export async function ambilLinimasa(produk: { id: string; rilis_at: string | nul
   const { data } = await supabase
     .from("pasaran_harian")
     .select("tanggal, median, garansi")
+      .eq("demo", ATURAN[modeSekarang()].demo)
     .eq("product_id", produk.id)
     .eq("sisi", "jual")
     .eq("kondisi", "second")

@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { saringObservasi } from "@/lib/mode";
 import { kelompokkanKomponen, pinjamRasioKomponen, type ObservasiKomponen, type RasioTerpinjam } from "@/lib/komponen";
 
 function kunci(componentTypeId: string, boardGradeId: string | null, partGradeId: string | null): string {
@@ -43,7 +44,7 @@ export async function ambilRasioKomponenProduk(produk: {
   // baris lain, bukan baris yang koreksi_atas-nya sendiri null.
   const tertimpa = new Set((observasi ?? []).map((o) => o.koreksi_atas).filter((v): v is number => v != null));
 
-  const rows = (observasi ?? [])
+  const rows = saringObservasi(observasi ?? [])
     .filter(
       (o): o is typeof o & { id: number; product_id: string; seller_id: string; harga: number; observed_at: string } =>
         o.id != null && o.product_id != null && o.seller_id != null && o.harga != null && o.observed_at != null && !tertimpa.has(o.id),
