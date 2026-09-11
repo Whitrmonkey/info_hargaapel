@@ -69,6 +69,24 @@ export type Database = {
           },
         ]
       }
+      blokir_domain: {
+        Row: {
+          ditambah_at: string
+          domain: string
+          sumber: string | null
+        }
+        Insert: {
+          ditambah_at?: string
+          domain: string
+          sumber?: string | null
+        }
+        Update: {
+          ditambah_at?: string
+          domain?: string
+          sumber?: string | null
+        }
+        Relationships: []
+      }
       board_grades: {
         Row: {
           id: string
@@ -214,6 +232,57 @@ export type Database = {
         }
         Relationships: []
       }
+      diskusi: {
+        Row: {
+          dibuat_at: string
+          disunting_at: string | null
+          id: number
+          induk_id: number | null
+          isi: string
+          product_id: string | null
+          skor: number
+          status: string
+          user_id: string
+        }
+        Insert: {
+          dibuat_at?: string
+          disunting_at?: string | null
+          id?: number
+          induk_id?: number | null
+          isi: string
+          product_id?: string | null
+          skor?: number
+          status?: string
+          user_id: string
+        }
+        Update: {
+          dibuat_at?: string
+          disunting_at?: string | null
+          id?: number
+          induk_id?: number | null
+          isi?: string
+          product_id?: string | null
+          skor?: number
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "diskusi_induk_id_fkey"
+            columns: ["induk_id"]
+            isOneToOne: false
+            referencedRelation: "diskusi"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "diskusi_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fx_rates: {
         Row: {
           tanggal: string
@@ -228,6 +297,130 @@ export type Database = {
           usd_idr?: number
         }
         Relationships: []
+      }
+      laporan_harga: {
+        Row: {
+          area: string
+          bobot_saat_lapor: number
+          catatan: string | null
+          dibuat_at: string
+          ditinjau_at: string | null
+          garansi: string
+          grade: string | null
+          harga_buka: number | null
+          harga_jadi: number
+          id: number
+          kelengkapan: string[] | null
+          kondisi: string
+          observasi_id: number | null
+          product_id: string
+          status: string
+          tanggal_beli: string | null
+          user_id: string
+        }
+        Insert: {
+          area: string
+          bobot_saat_lapor?: number
+          catatan?: string | null
+          dibuat_at?: string
+          ditinjau_at?: string | null
+          garansi: string
+          grade?: string | null
+          harga_buka?: number | null
+          harga_jadi: number
+          id?: number
+          kelengkapan?: string[] | null
+          kondisi: string
+          observasi_id?: number | null
+          product_id: string
+          status?: string
+          tanggal_beli?: string | null
+          user_id: string
+        }
+        Update: {
+          area?: string
+          bobot_saat_lapor?: number
+          catatan?: string | null
+          dibuat_at?: string
+          ditinjau_at?: string | null
+          garansi?: string
+          grade?: string | null
+          harga_buka?: number | null
+          harga_jadi?: number
+          id?: number
+          kelengkapan?: string[] | null
+          kondisi?: string
+          observasi_id?: number | null
+          product_id?: string
+          status?: string
+          tanggal_beli?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "laporan_harga_observasi_id_fkey"
+            columns: ["observasi_id"]
+            isOneToOne: false
+            referencedRelation: "harga_terkini"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "laporan_harga_observasi_id_fkey"
+            columns: ["observasi_id"]
+            isOneToOne: false
+            referencedRelation: "price_observations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "laporan_harga_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      laporan_pelanggaran: {
+        Row: {
+          alasan: string
+          dibuat_at: string
+          diskusi_id: number | null
+          id: number
+          laporan_id: number | null
+          user_id: string
+        }
+        Insert: {
+          alasan: string
+          dibuat_at?: string
+          diskusi_id?: number | null
+          id?: number
+          laporan_id?: number | null
+          user_id: string
+        }
+        Update: {
+          alasan?: string
+          dibuat_at?: string
+          diskusi_id?: number | null
+          id?: number
+          laporan_id?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "laporan_pelanggaran_diskusi_id_fkey"
+            columns: ["diskusi_id"]
+            isOneToOne: false
+            referencedRelation: "diskusi"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "laporan_pelanggaran_laporan_id_fkey"
+            columns: ["laporan_id"]
+            isOneToOne: false
+            referencedRelation: "laporan_harga"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       market_events: {
         Row: {
@@ -311,6 +504,70 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "pengecekan_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      penilaian_laporan: {
+        Row: {
+          alasan: string | null
+          dibuat_at: string
+          laporan_id: number
+          nilai: string
+          user_id: string
+        }
+        Insert: {
+          alasan?: string | null
+          dibuat_at?: string
+          laporan_id: number
+          nilai: string
+          user_id: string
+        }
+        Update: {
+          alasan?: string | null
+          dibuat_at?: string
+          laporan_id?: number
+          nilai?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "penilaian_laporan_laporan_id_fkey"
+            columns: ["laporan_id"]
+            isOneToOne: false
+            referencedRelation: "laporan_harga"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      perangkat_dimiliki: {
+        Row: {
+          dinyatakan_at: string
+          id: string
+          kesehatan_baterai: number | null
+          product_id: string
+          user_id: string
+        }
+        Insert: {
+          dinyatakan_at?: string
+          id?: string
+          kesehatan_baterai?: number | null
+          product_id: string
+          user_id: string
+        }
+        Update: {
+          dinyatakan_at?: string
+          id?: string
+          kesehatan_baterai?: number | null
+          product_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "perangkat_dimiliki_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
@@ -507,7 +764,9 @@ export type Database = {
       }
       profiles: {
         Row: {
+          bergabung_at: string
           created_at: string
+          ditangguhkan_at: string | null
           id: string
           nama: string | null
           peran: string
@@ -515,7 +774,9 @@ export type Database = {
           wa_terverifikasi: boolean
         }
         Insert: {
+          bergabung_at?: string
           created_at?: string
+          ditangguhkan_at?: string | null
           id: string
           nama?: string | null
           peran?: string
@@ -523,12 +784,41 @@ export type Database = {
           wa_terverifikasi?: boolean
         }
         Update: {
+          bergabung_at?: string
           created_at?: string
+          ditangguhkan_at?: string | null
           id?: string
           nama?: string | null
           peran?: string
           wa_e164?: string | null
           wa_terverifikasi?: boolean
+        }
+        Relationships: []
+      }
+      reputasi: {
+        Row: {
+          bobot: number
+          diperbarui_at: string
+          kategori: string
+          meleset: number
+          terverifikasi: number
+          user_id: string
+        }
+        Insert: {
+          bobot?: number
+          diperbarui_at?: string
+          kategori: string
+          meleset?: number
+          terverifikasi?: number
+          user_id: string
+        }
+        Update: {
+          bobot?: number
+          diperbarui_at?: string
+          kategori?: string
+          meleset?: number
+          terverifikasi?: number
+          user_id?: string
         }
         Relationships: []
       }
@@ -614,6 +904,38 @@ export type Database = {
           wa?: string | null
         }
         Relationships: []
+      }
+      sentimen_harga: {
+        Row: {
+          dibuat_at: string
+          harga_saat: number
+          product_id: string
+          suara: string
+          user_id: string
+        }
+        Insert: {
+          dibuat_at?: string
+          harga_saat: number
+          product_id: string
+          suara: string
+          user_id: string
+        }
+        Update: {
+          dibuat_at?: string
+          harga_saat?: number
+          product_id?: string
+          suara?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sentimen_harga_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       service_observations: {
         Row: {
@@ -871,6 +1193,32 @@ export type Database = {
           },
         ]
       }
+      suara_diskusi: {
+        Row: {
+          arah: number
+          diskusi_id: number
+          user_id: string
+        }
+        Insert: {
+          arah: number
+          diskusi_id: number
+          user_id: string
+        }
+        Update: {
+          arah?: number
+          diskusi_id?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "suara_diskusi_diskusi_id_fkey"
+            columns: ["diskusi_id"]
+            isOneToOne: false
+            referencedRelation: "diskusi"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       wa_broadcast_drafts: {
         Row: {
           created_at: string
@@ -1063,6 +1411,47 @@ export type Database = {
           },
         ]
       }
+      penanda_pemilik: {
+        Row: {
+          product_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          product_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          product_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "perangkat_dimiliki_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profil_publik: {
+        Row: {
+          bergabung_at: string | null
+          id: string | null
+          nama: string | null
+        }
+        Insert: {
+          bergabung_at?: string | null
+          id?: string | null
+          nama?: string | null
+        }
+        Update: {
+          bergabung_at?: string | null
+          id?: string | null
+          nama?: string | null
+        }
+        Relationships: []
+      }
       rasio_komponen: {
         Row: {
           board_grade_id: string | null
@@ -1143,8 +1532,26 @@ export type Database = {
           },
         ]
       }
+      sentimen_agregat: {
+        Row: {
+          jumlah: number | null
+          product_id: string | null
+          suara: string | null
+          terakhir: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sentimen_harga_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
+      akun_aktif: { Args: never; Returns: boolean }
       refresh_agregat: { Args: never; Returns: undefined }
     }
     Enums: {

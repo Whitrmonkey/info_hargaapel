@@ -1,7 +1,9 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { headers } from "next/headers";
+import { PESAN_TOLAK, saringEmail } from "@/lib/saring-akun";
 
 const BATAS_PERCOBAAN = 3;
 const JENDELA_MS = 15 * 60_000;
@@ -51,6 +53,16 @@ export async function kirimTautanMasuk(email: string, turnstileToken: string): P
   if (!(await turnstileValid(turnstileToken, ip))) {
     return { ok: false, pesan: "Verifikasi anti-bot gagal. Muat ulang halaman dan coba lagi." };
   }
+
+  // Lapis 1 dan 2: domain sekali pakai, lalu pemeriksaan MX. Keduanya
+  // dijalankan SEBELUM magic link dikirim, supaya reputasi domain pengirim
+  // tidak terbakar oleh alamat yang memang tidak mungkin menerima apa pun.
+  const saring = await saringEmail(email, async (domain) => {
+    const admin = createAdminClient();
+    const { data } = await admin.from("blokir_domain").select("domain").eq("domain", domain).maybeSingle();
+    return data != null;
+  });
+  if (!saring.boleh) return { ok: false, pesan: PESAN_TOLAK[saring.alasan!] };
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithOtp({

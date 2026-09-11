@@ -33,3 +33,32 @@ export async function keluar() {
   const supabase = await createClient();
   await supabase.auth.signOut();
 }
+
+// Perangkat yang dimiliki adalah BOBOT, bukan syarat mendaftar. Pemilik model
+// tertentu dapat penanda pemilik pada laporan dan diskusi tentang model itu
+// saja. Kesehatan baterai opsional dan tidak pernah terbaca publik.
+// IMEI tidak pernah diminta dan tidak pernah disimpan.
+export async function nyatakanPerangkat(productId: string, kesehatanBaterai: number | null) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("Belum masuk.");
+
+  const sehat = kesehatanBaterai != null && kesehatanBaterai >= 1 && kesehatanBaterai <= 100 ? kesehatanBaterai : null;
+  const { error } = await supabase
+    .from("perangkat_dimiliki")
+    .upsert({ user_id: user.id, product_id: productId, kesehatan_baterai: sehat }, { onConflict: "user_id,product_id" });
+  if (error) throw new Error(error.message);
+  revalidatePath("/akun");
+}
+
+export async function hapusPerangkat(productId: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("Belum masuk.");
+  await supabase.from("perangkat_dimiliki").delete().eq("user_id", user.id).eq("product_id", productId);
+  revalidatePath("/akun");
+}
