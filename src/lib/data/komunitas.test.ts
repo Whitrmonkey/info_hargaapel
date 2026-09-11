@@ -113,25 +113,31 @@ describe("suara meragukan wajib beralasan — ditegakkan basis data", () => {
   });
 });
 
+// Blok ini memakai MAC, bukan IPHONE, dan laporannya dibuat semenit lalu.
+// Keduanya demi isolasi: yang diuji harus aturannya, bukan kebetulan isi
+// tabel observasi di mesin yang menjalankan test. Pakai produk yang ramai
+// datanya berarti test ini lulus atau gagal tergantung fixture orang lain.
+const BARU_SAJA = () => new Date(Date.now() - 60_000).toISOString();
+
 describe("laporan tidak pernah terverifikasi tanpa observasi independen", () => {
   it("tanpa observasi sesudahnya, laporan tetap menunggu", async () => {
-    const id = await buatLaporan(IPHONE, 8_000_000, new Date(Date.now() - 3 * 86_400_000).toISOString());
+    const id = await buatLaporan(MAC, 8_000_000, BARU_SAJA());
     await verifikasiLaporanMenunggu(admin);
     const { data } = await admin.from("laporan_harga").select("status").eq("id", id).single();
     expect(data!.status).toBe("menunggu");
   });
 
   it("observasi yang tercatat SEBELUM laporan tidak memverifikasinya", async () => {
-    await buatObservasi(IPHONE, 8_000_000, new Date(Date.now() - 5 * 86_400_000).toISOString());
-    const id = await buatLaporan(IPHONE, 8_000_000, new Date(Date.now() - 3 * 86_400_000).toISOString());
+    await buatObservasi(MAC, 8_000_000, new Date(Date.now() - 5 * 86_400_000).toISOString());
+    const id = await buatLaporan(MAC, 8_000_000, BARU_SAJA());
     await verifikasiLaporanMenunggu(admin);
     const { data } = await admin.from("laporan_harga").select("status").eq("id", id).single();
     expect(data!.status).toBe("menunggu");
   });
 
   it("observasi sesudahnya yang cocok membuatnya terverifikasi", async () => {
-    const id = await buatLaporan(IPHONE, 8_000_000, new Date(Date.now() - 3 * 86_400_000).toISOString());
-    const obs = await buatObservasi(IPHONE, 8_100_000, new Date(Date.now() - 86_400_000).toISOString());
+    const id = await buatLaporan(MAC, 8_000_000, BARU_SAJA());
+    const obs = await buatObservasi(MAC, 8_100_000, new Date().toISOString());
     await verifikasiLaporanMenunggu(admin);
     const { data } = await admin.from("laporan_harga").select("status, observasi_id").eq("id", id).single();
     expect(data!.status).toBe("terverifikasi");
