@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { PitaUkur } from "@/components/pita-ukur";
 import { Kucing } from "@/components/kucing";
+import { AjakLapor } from "@/components/ajak-lapor";
 import { FooterLegal } from "@/components/footer-legal";
 import { kunciSebaran, nilaiVonis } from "@/lib/cek";
 import { KELUARGA } from "@/lib/keluarga";
@@ -41,7 +42,7 @@ interface Pilihan {
 
 const KOSONG: Pilihan = { keluarga: null, model: null, varian: null, jalur: null, kondisi: null };
 
-export function CekClient({ produk, sebaran, pintasan }: DataCek) {
+export function CekClient({ produk, sebaran, pintasan, masuk }: DataCek & { masuk: boolean }) {
   const [p, setP] = useState<Pilihan>(KOSONG);
   const [harga, setHarga] = useState<number | null>(null);
   const [cari, setCari] = useState("");
@@ -208,6 +209,17 @@ export function CekClient({ produk, sebaran, pintasan }: DataCek) {
               </span>
             </div>
           </section>
+
+          <AjakLapor
+            productId={produkTerpilih!.id}
+            kondisi={kondisiTerpilih!.kondisi}
+            grade={kondisiTerpilih!.grade}
+            garansi={p.jalur!}
+            area="Jabodetabek"
+            sebaran={s}
+            hargaAwal={hargaAktif}
+            masuk={masuk}
+          />
         </>
       ) : (
         <section className="py-14 text-center">

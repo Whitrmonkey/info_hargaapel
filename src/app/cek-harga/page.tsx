@@ -1,3 +1,4 @@
+import { createClient } from "@/lib/supabase/server";
 import { ambilDataCek } from "@/lib/data/sebaran-device";
 import { CekClient } from "./cek-client";
 
@@ -7,6 +8,7 @@ export const metadata = {
 };
 
 export default async function CekHargaPage() {
-  const data = await ambilDataCek();
-  return <CekClient {...data} />;
+  const supabase = await createClient();
+  const [data, { data: { user } }] = await Promise.all([ambilDataCek(), supabase.auth.getUser()]);
+  return <CekClient {...data} masuk={user != null} />;
 }

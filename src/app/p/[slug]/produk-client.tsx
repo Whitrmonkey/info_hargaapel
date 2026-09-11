@@ -317,6 +317,9 @@ export function ProdukClient({
                 </button>
               )}
               {pesanPantau && <p className="text-xs text-muted-foreground">{pesanPantau}</p>}
+              <Link href="/cek-harga" className="mt-1 block text-xs text-muted-foreground underline underline-offset-2">
+                baru beli ini? lapor harga jadinya
+              </Link>
             </div>
           )}
         </div>

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { TombolSaluranWa } from "@/components/tombol-saluran-wa";
 
 /**
@@ -14,6 +15,12 @@ export function FooterLegal({ children }: { children?: React.ReactNode }) {
         Bukan saran keuangan. Harga bisa berubah, dan angka yang ditampilkan adalah yang terpantau, bukan yang
         dianjurkan. Penjual yang namanya muncul di halaman ini adalah sumber yang menerbitkan harganya sendiri di
         web; kalau kelak ada yang berbayar, ia akan ditandai jelas sebagai iklan dan tidak ikut perhitungan mana pun.
+      </p>
+      <p>
+        <Link href="/cek-harga" className="underline underline-offset-2 hover:text-foreground">
+          Baru beli perangkat Apple? Lapor harga jadinya
+        </Link>{" "}
+        — laporan pembaca yang belakangan cocok dengan harga toko adalah cara angka di sini tetap segar.
       </p>
       <TombolSaluranWa />
     </footer>
