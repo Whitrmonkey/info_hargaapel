@@ -1484,6 +1484,22 @@ export type Database = {
           },
         ]
       }
+      penilaian_agregat: {
+        Row: {
+          laporan_id: number | null
+          masuk_akal: number | null
+          meragukan: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "penilaian_laporan_laporan_id_fkey"
+            columns: ["laporan_id"]
+            isOneToOne: false
+            referencedRelation: "laporan_harga"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profil_publik: {
         Row: {
           bergabung_at: string | null
