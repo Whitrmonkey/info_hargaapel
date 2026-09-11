@@ -15,6 +15,10 @@
     {
       "path": "/api/cron/blokir-domain",
       "schedule": "0 3 1 * *"
+    },
+    {
+      "path": "/api/cron/verifikasi-laporan",
+      "schedule": "30 21 * * *"
     }
   ]
 }
