@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
 import { PitaUkur } from "@/components/pita-ukur";
 import { Kucing } from "@/components/kucing";
 import { AjakLapor } from "@/components/ajak-lapor";
@@ -120,15 +119,7 @@ export function CekClient({ produk, sebaran, pintasan, masuk }: DataCek & { masu
   const tampil = langkah.filter((l, i) => i === 0 || p[langkah[i - 1].kunci] != null);
 
   return (
-    <div className="mx-auto max-w-3xl px-5 pb-24">
-      <nav className="flex items-center justify-between border-b border-foreground py-4">
-        <Link href="/" className="text-lg font-bold tracking-tight">
-          hargaapel
-        </Link>
-        <Link href="/servis" className="text-xs text-muted-foreground underline underline-offset-2">
-          Harga servis
-        </Link>
-      </nav>
+    <div className="mx-auto max-w-[760px] px-5 pb-24 sm:px-6">
 
       <header className="border-b border-border py-9">
         <h1 className="mb-3 text-3xl font-bold tracking-tight sm:text-[44px] sm:leading-none">Ditawari berapa?</h1>

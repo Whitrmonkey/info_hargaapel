@@ -1,17 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { hitungKelayakan } from "@/lib/kelayakan";
-import { ambilHargaUnitSecondStandar } from "@/lib/data/harga-unit";
 import { ambilSebaranPerGrade } from "@/lib/data/sebaran-per-grade";
 import { ambilSeriServis } from "@/lib/data/ambil-seri";
-import { JUDUL_KELAYAKAN, pertanyaanUntukKategori } from "@/lib/salinan-servis";
+import { pertanyaanUntukKategori } from "@/lib/salinan-servis";
 import { BagianGradeView } from "@/components/bagian-grade";
 import { GrafikDuaSeri } from "@/components/grafik-dua-seri";
 import { FooterLegal } from "@/components/footer-legal";
 import { pantauServis } from "./actions";
-
-const rupiah = (n: number) => "Rp " + n.toLocaleString("id-ID");
 
 export default async function DetailServisPage({
   params,
@@ -36,9 +32,7 @@ export default async function DetailServisPage({
   ]);
   const areaWorkshop = new Map((workshopSemua ?? []).map((w) => [w.id, w.area]));
 
-  const hargaUnit = await ambilHargaUnitSecondStandar(produk.id);
   const representatif = bagian.filter((b) => b.sebaran).sort((a, b) => (b.sebaran!.jumlah_bengkel) - (a.sebaran!.jumlah_bengkel))[0];
-  const kelayakan = representatif?.sebaran ? hitungKelayakan(representatif.sebaran.p50, hargaUnit) : null;
 
   const pertanyaan = pertanyaanUntukKategori(jenisServis.kategori);
 
@@ -48,15 +42,7 @@ export default async function DetailServisPage({
   );
 
   return (
-    <div className="mx-auto max-w-3xl px-5 pb-20">
-      <header className="flex items-center justify-between border-b border-foreground py-5">
-        <Link href="/" className="text-xl font-bold tracking-tight">
-          hargaapel
-        </Link>
-        <Link href="/servis" className="text-sm text-muted-foreground underline underline-offset-2">
-          Cari lagi
-        </Link>
-      </header>
+    <div className="mx-auto max-w-[760px] px-5 pb-20 sm:px-6">
 
       <div className="py-8">
         <p className="mb-1 text-sm text-muted-foreground">{jenisServis.nama}</p>
@@ -64,16 +50,6 @@ export default async function DetailServisPage({
           {produk.model} {produk.varian}
         </h1>
         {jenisServis.deskripsi && <p className="mb-6 max-w-prose text-sm text-muted-foreground">{jenisServis.deskripsi}</p>}
-
-        {kelayakan && (
-          <div className="mb-8 rounded-lg border border-border bg-muted/40 p-4">
-            <p className="text-xs text-muted-foreground">Rasio kelayakan perbaikan</p>
-            <p className="mt-1 text-sm font-semibold">{JUDUL_KELAYAKAN[kelayakan.label]}</p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Kira-kira {Math.round(kelayakan.rasio * 100)}% dari harga unit second standar ({rupiah(hargaUnit!)}).
-            </p>
-          </div>
-        )}
 
         {seriA && duaTeratas.length > 0 && (
           <div className="mb-8">

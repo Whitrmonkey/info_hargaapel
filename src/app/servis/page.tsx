@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { ServisPicker } from "./servis-picker";
 import { FooterLegal } from "@/components/footer-legal";
@@ -11,12 +10,7 @@ export default async function ServisPage() {
   ]);
 
   return (
-    <div className="mx-auto max-w-3xl px-5 pb-20">
-      <header className="border-b border-foreground py-5">
-        <Link href="/" className="text-xl font-bold tracking-tight">
-          hargaapel
-        </Link>
-      </header>
+    <div className="mx-auto max-w-[760px] px-5 pb-20 sm:px-6">
       <div className="py-8">
         <p className="mb-1 text-sm text-muted-foreground">Servis</p>
         <h1 className="mb-8 text-2xl font-bold tracking-tight sm:text-3xl">Cari sebaran harga servis</h1>

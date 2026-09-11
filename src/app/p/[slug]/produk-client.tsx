@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { useTheme } from "next-themes";
 import { IlustrasiProduk, TAMPAK, type Bentuk } from "@/components/ilustrasi-produk";
 import { Linimasa } from "@/components/linimasa";
 import { Framewall, type GradeMesin, type SpesimenKomponen } from "@/components/framewall";
@@ -87,7 +86,6 @@ export function ProdukClient({
   penawaran: PenawaranAnonim[];
   jumlahToko: number;
 }) {
-  const { theme, setTheme } = useTheme();
   const [tampak, setTampak] = useState("depan");
   const [aktif, setAktif] = useState<string | null>(null);
   const [warnaTerpilih, setWarnaTerpilih] = useState(warna[0]?.nama ?? "");
@@ -164,27 +162,7 @@ export function ProdukClient({
   }, [componentTypes, rasioKomponen, mesinList]);
 
   return (
-    <div className="mx-auto max-w-5xl px-5 pb-24">
-      <nav className="flex items-center justify-between border-b border-foreground py-4">
-        <Link href="/" className="text-lg font-bold tracking-tight">
-          hargaapel
-        </Link>
-        <div className="flex items-center gap-4 text-xs">
-          <Link href="/servis" className="text-muted-foreground underline underline-offset-2">
-            Servis
-          </Link>
-          <Link href="/hitung" className="text-muted-foreground underline underline-offset-2">
-            Hitung kelayakan
-          </Link>
-          <button
-            type="button"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className="rounded-full border border-border px-2.5 py-1 text-muted-foreground hover:border-foreground hover:text-foreground"
-          >
-            {theme === "dark" ? "mode terang" : "mode gelap"}
-          </button>
-        </div>
-      </nav>
+    <div className="mx-auto max-w-[1100px] px-5 pb-24 sm:px-6">
 
       <header className="grid grid-cols-1 gap-10 border-b border-border py-8 md:grid-cols-[280px_1fr]">
         <div className="md:sticky md:top-4 md:self-start">

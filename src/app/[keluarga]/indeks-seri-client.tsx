@@ -49,15 +49,7 @@ export function IndeksSeriClient({
   }, [kartu, urut]);
 
   return (
-    <div className="mx-auto max-w-5xl px-5 pb-20">
-      <nav className="flex items-center justify-between border-b border-foreground py-4 text-sm">
-        <Link href="/" className="text-lg font-bold tracking-tight">
-          hargaapel
-        </Link>
-        <Link href="/servis" className="text-xs text-muted-foreground underline underline-offset-2">
-          Servis
-        </Link>
-      </nav>
+    <div className="mx-auto max-w-[1100px] px-5 pb-20 sm:px-6">
 
       <header className="border-b border-border py-8">
         <h1 className="mb-3 text-3xl font-bold tracking-tight sm:text-4xl">{judul}</h1>
@@ -98,11 +90,10 @@ export function IndeksSeriClient({
                 <div className="flex items-start gap-4">
                   <Siluet kategori={kategori} atribut={(s.bentuk?.siluet as AtributSiluet | undefined) ?? null} />
                   <div className="min-w-0 flex-1">
-                    <p className="text-lg font-semibold tracking-tight">
-                      {s.model} <span className="font-normal text-muted-foreground">{s.varian}</span>
-                    </p>
+                    <p className="text-lg font-semibold tracking-tight">{s.model}</p>
                     <p className="mb-3 text-[11.5px] text-muted-foreground">
-                      {s.tahun ?? "tahun rilis belum dicatat"} · {s.jumlahToko} toko terpantau
+                      {s.tahun ?? "tahun rilis belum dicatat"} · {s.kapasitas.join(" · ")}
+                      {s.jumlahToko > 0 && ` · ${s.jumlahToko} toko terpantau`}
                     </p>
                     {s.bekasBawah != null && s.bekasAtas != null ? (
                       <>

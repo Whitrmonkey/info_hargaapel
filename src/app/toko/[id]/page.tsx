@@ -43,15 +43,7 @@ export default async function TokoPage({ params }: { params: Promise<{ id: strin
     .sort((a, b) => a.produk.model.localeCompare(b.produk.model));
 
   return (
-    <div className="mx-auto max-w-3xl px-5 pb-20">
-      <header className="flex items-center justify-between border-b border-foreground py-5">
-        <Link href="/" className="text-xl font-bold tracking-tight">
-          hargaapel
-        </Link>
-        <Link href="/" className="text-sm text-muted-foreground underline underline-offset-2">
-          Semua harga
-        </Link>
-      </header>
+    <div className="mx-auto max-w-[760px] px-5 pb-20 sm:px-6">
 
       <div className="py-8">
         <p className="mb-1 text-sm text-muted-foreground">{seller.area} · {seller.tipe}</p>

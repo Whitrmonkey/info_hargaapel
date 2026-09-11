@@ -106,7 +106,7 @@ export function PasaranClient({
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <div className="mx-auto max-w-3xl px-5 pb-20">
+      <div className="mx-auto max-w-[1100px] px-5 pb-20 sm:px-6">
         <header className="flex items-baseline justify-between gap-4 border-b border-foreground py-5">
           <span className="text-xl font-bold tracking-tight">hargaapel</span>
           <nav className="flex items-center gap-4 text-xs">

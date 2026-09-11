@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ambilRekamJejak } from "@/lib/data/rekam-jejak";
 import { KELUARGA } from "@/lib/keluarga";
@@ -25,12 +24,7 @@ export default async function ProfilPage({ params }: { params: Promise<{ id: str
   ];
 
   return (
-    <div className="mx-auto max-w-3xl px-5 pb-20">
-      <nav className="flex items-center justify-between border-b border-foreground py-4">
-        <Link href="/" className="text-lg font-bold tracking-tight">
-          hargaapel
-        </Link>
-      </nav>
+    <div className="mx-auto max-w-[760px] px-5 pb-20 sm:px-6">
 
       <header className="border-b border-border py-8">
         <h1 className="mb-1 text-2xl font-bold tracking-tight sm:text-3xl">{jejak.nama ?? "Kontributor"}</h1>
