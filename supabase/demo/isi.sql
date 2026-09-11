@@ -163,9 +163,18 @@ begin
   select id into p15 from products where slug='iphone-15-128gb';
 
   for i in 1..6 loop
-    insert into auth.users (id, instance_id, aud, role, email, encrypted_password, email_confirmed_at, created_at, updated_at)
+    -- Kolom token WAJIB diisi string kosong, bukan dibiarkan NULL. GoTrue
+    -- membacanya ke string non-nullable, dan satu baris NULL saja membuat
+    -- SELURUH layanan auth balas 500 "Database error finding users" --
+    -- termasuk untuk pengguna yang tidak ada hubungannya dengan data demo.
+    insert into auth.users (id, instance_id, aud, role, email, encrypted_password,
+                            email_confirmed_at, created_at, updated_at,
+                            confirmation_token, recovery_token, email_change,
+                            email_change_token_new, email_change_token_current,
+                            phone_change_token, reauthentication_token)
     values (gen_random_uuid(),'00000000-0000-0000-0000-000000000000','authenticated','authenticated',
-            'demo-' || i || '@contoh.test','', now(), now() - (i || ' months')::interval, now())
+            'demo-' || i || '@contoh.test','', now(), now() - (i || ' months')::interval, now(),
+            '', '', '', '', '', '', '')
     returning id into u;
     update profiles set nama = 'Demo ' || nama_demo[i], bergabung_at = now() - (i || ' months')::interval where id = u;
 
