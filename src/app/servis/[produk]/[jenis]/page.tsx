@@ -9,6 +9,7 @@ import { JUDUL_KELAYAKAN, pertanyaanUntukKategori } from "@/lib/salinan-servis";
 import { BagianGradeView } from "@/components/bagian-grade";
 import { GrafikDuaSeri } from "@/components/grafik-dua-seri";
 import { FooterLegal } from "@/components/footer-legal";
+import { pantauServis } from "./actions";
 
 const rupiah = (n: number) => "Rp " + n.toLocaleString("id-ID");
 
@@ -19,6 +20,9 @@ export default async function DetailServisPage({
 }) {
   const { produk: produkSlug, jenis: jenisSlug } = await params;
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   const [{ data: produk }, { data: jenisServis }] = await Promise.all([
     supabase.from("products").select("*").eq("slug", produkSlug).single(),
@@ -103,14 +107,36 @@ export default async function DetailServisPage({
           </div>
         )}
 
-        <div className="mt-8">
-          <Link
-            href={`/cek-harga?produk=${produk.slug}&jenis=${jenisServis.slug}`}
-            className="inline-block rounded-lg border border-foreground px-4 py-2.5 text-sm font-medium"
-          >
-            Ada harga yang ditawarkan? Cek di sini →
-          </Link>
-        </div>
+        {representatif?.sebaran && (
+          <div className="mt-8 border-t border-border pt-6 text-sm">
+            {user ? (
+              <form
+                action={async () => {
+                  "use server";
+                  await pantauServis(
+                    produk.id,
+                    jenisServis.id,
+                    representatif.partGradeId,
+                    representatif.sebaran?.p50 ?? null,
+                  );
+                }}
+              >
+                <p className="mb-2">Mau dikabari kalau harga servis ini turun?</p>
+                <button type="submit" className="rounded-lg border border-foreground px-3 py-1.5 text-sm font-medium">
+                  Ya, kabari saya
+                </button>
+              </form>
+            ) : (
+              <p>
+                Mau dikabari kalau harga servis ini turun?{" "}
+                <Link href="/masuk" className="underline underline-offset-2">
+                  Masuk dulu
+                </Link>
+                .
+              </p>
+            )}
+          </div>
+        )}
 
         <FooterLegal />
       </div>

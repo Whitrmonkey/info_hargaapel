@@ -1,31 +1,23 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
-import { revalidatePath } from "next/cache";
+import { createAdminClient } from "@/lib/supabase/admin";
 
-// target_harga diisi dari median SAAT INI (bukan diminta ke user secara
-// eksplisit) -- itu acuan "turun dari sini" yang dipakai cron alert nanti.
-export async function pantauServis(
+const KONDISI_SAH = ["baru", "second", "refurb"];
+const GRADE_SAH = ["mulus", "standar", "ekonomis"];
+const GARANSI_SAH = ["resmi", "inter", "toko"];
+
+// Catatan untuk menyusun pintasan "sering dicek". Tidak menyimpan siapa yang
+// mengecek -- tanpa user_id, IP, atau sesi. Ditulis lewat service role karena
+// tabelnya sengaja tidak punya policy insert untuk klien.
+export async function catatPengecekan(
   productId: string,
-  serviceTypeId: string,
-  partGradeId: string | null,
-  medianSaatIni: number | null,
-) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) throw new Error("Belum masuk.");
+  kondisi: string,
+  grade: string | null,
+  garansi: string,
+): Promise<void> {
+  if (!KONDISI_SAH.includes(kondisi) || !GARANSI_SAH.includes(garansi)) return;
+  if (grade != null && !GRADE_SAH.includes(grade)) return;
 
-  const { error } = await supabase.from("watchlists").insert({
-    user_id: user.id,
-    jenis: "servis",
-    product_id: productId,
-    service_type_id: serviceTypeId,
-    part_grade_id: partGradeId,
-    target_harga: medianSaatIni,
-    kanal: "email",
-  });
-  if (error) throw new Error(error.message);
-  revalidatePath("/cek-harga");
+  const admin = createAdminClient();
+  await admin.from("pengecekan").insert({ product_id: productId, kondisi, grade, garansi });
 }

@@ -283,6 +283,41 @@ export type Database = {
         }
         Relationships: []
       }
+      pengecekan: {
+        Row: {
+          dibuat_at: string
+          garansi: string
+          grade: string | null
+          id: number
+          kondisi: string
+          product_id: string
+        }
+        Insert: {
+          dibuat_at?: string
+          garansi: string
+          grade?: string | null
+          id?: number
+          kondisi: string
+          product_id: string
+        }
+        Update: {
+          dibuat_at?: string
+          garansi?: string
+          grade?: string | null
+          id?: number
+          kondisi?: string
+          product_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pengecekan_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       price_observations: {
         Row: {
           catatan: string | null
