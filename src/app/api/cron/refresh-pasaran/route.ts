@@ -1,21 +1,18 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { hitungSinyalSemua } from "@/lib/data/hitung-sinyal-semua";
+import { tugasRefresh } from "@/lib/cron/tugas";
 
 export const runtime = "nodejs";
-export const maxDuration = 60;
+export const maxDuration = 120;
 
+// Tugas ini bagian dari rangkaian /api/cron/harian. Rute tersendiri ini
+// dipertahankan supaya bisa dipicu manual saat menelusuri masalah, tapi
+// TIDAK lagi punya jadwal cron sendiri -- lihat vercel.json.
 export async function GET(req: Request) {
-  const authHeader = req.headers.get("authorization") ?? "";
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  const rahasia = process.env.CRON_SECRET;
+  if (rahasia && req.headers.get("authorization") !== `Bearer ${rahasia}`) {
     return new NextResponse(null, { status: 401 });
   }
-
-  const admin = createAdminClient();
-  const { error } = await admin.rpc("refresh_agregat");
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-
-  const jumlahSinyal = await hitungSinyalSemua(admin);
-
-  return NextResponse.json({ status: "sukses", jumlah_sinyal: jumlahSinyal });
+  const hasil = await tugasRefresh(createAdminClient());
+  return NextResponse.json(hasil, { status: hasil.ok ? 200 : 500 });
 }

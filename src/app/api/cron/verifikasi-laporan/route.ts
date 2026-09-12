@@ -1,15 +1,18 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { verifikasiLaporanMenunggu } from "@/lib/data/verifikasi-laporan";
+import { tugasVerifikasi } from "@/lib/cron/tugas";
 
+export const runtime = "nodejs";
 export const maxDuration = 120;
 
-export async function GET(request: Request) {
+// Tugas ini bagian dari rangkaian /api/cron/harian. Rute tersendiri ini
+// dipertahankan supaya bisa dipicu manual saat menelusuri masalah, tapi
+// TIDAK lagi punya jadwal cron sendiri -- lihat vercel.json.
+export async function GET(req: Request) {
   const rahasia = process.env.CRON_SECRET;
-  if (rahasia && request.headers.get("authorization") !== `Bearer ${rahasia}`) {
-    return NextResponse.json({ ok: false }, { status: 401 });
+  if (rahasia && req.headers.get("authorization") !== `Bearer ${rahasia}`) {
+    return new NextResponse(null, { status: 401 });
   }
-
-  const hasil = await verifikasiLaporanMenunggu(createAdminClient());
-  return NextResponse.json({ ok: true, ...hasil });
+  const hasil = await tugasVerifikasi(createAdminClient());
+  return NextResponse.json(hasil, { status: hasil.ok ? 200 : 500 });
 }

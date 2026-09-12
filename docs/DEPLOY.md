@@ -92,7 +92,7 @@ variabel pertama saja.
 4. Cek Supabase → Authentication → URL Configuration, tambahkan alamat
    produksi ke redirect URL, kalau tidak magic link akan memantul ke
    localhost
-5. Cron di `vercel.json` ikut aktif sendiri di plan yang mendukungnya
+5. Cron di `vercel.json` ikut aktif sendiri
 
 ## 5. Yang belum aman untuk publik luas
 
@@ -101,3 +101,60 @@ variabel pertama saja.
 - Tabel `blokir_domain` kosong sampai cron bulanannya jalan sekali; boleh
   dipicu manual dengan memanggil `/api/cron/blokir-domain`
 - Belum ada backup terjadwal di sisi Supabase
+
+
+---
+
+## 6. Cron dan batasan plan Hobby
+
+Vercel Hobby mengizinkan 100 cron job, tapi **paling sering sekali sehari**,
+dengan ketepatan +/- 59 menit. Ekspresi seperti `0 * * * *` (tiap jam) akan
+menggagalkan deploy dengan pesan:
+
+> Hobby accounts are limited to daily cron jobs.
+
+Karena itu keempat tugas harian dirangkai jadi satu rute, `/api/cron/harian`,
+yang menjalankannya berurutan: scrape, refresh agregat, verifikasi laporan,
+lalu alert. Dua cron saja yang terdaftar sekarang:
+
+| Rute | Jadwal | Isi |
+|---|---|---|
+| `/api/cron/harian` | `0 20 * * *` | empat tugas harian, berurutan |
+| `/api/cron/blokir-domain` | `0 3 1 * *` | segarkan daftar domain sekali pakai |
+
+Penggabungan ini bukan cuma untuk memenuhi batasan. Dengan ketepatan +/- 59
+menit, jadwal terpisah justru bisa terbalik urutannya: scrape yang
+dijadwalkan 20:00 bisa jalan 20:59 sementara verifikasi 21:30 jalan tepat
+waktu, jadi laporan dinilai memakai data kemarin. Dirangkai dalam satu
+proses, urutannya tidak bergantung pada ketepatan jadwal sama sekali.
+
+Satu tugas gagal tidak menghentikan sisanya, dan rutenya membalas **207**
+kalau sebagian gagal — bukan 500, karena menandai seluruh proses gagal akan
+menyembunyikan tugas yang sebenarnya berhasil.
+
+### Kalau agregat perlu lebih segar dari sekali sehari
+
+Perlu diingat dulu: **harga terkini tidak terpengaruh.** `harga_terkini`
+adalah view biasa, bukan materialized, jadi harga di tangga harga,
+/cek-harga, dan /pasaran selalu segar. Yang menunggu refresh cuma agregat
+riwayat: linimasa, "bergerak minggu ini", sebaran servis, dan rasio
+komponen.
+
+Kalau itu pun perlu lebih sering, ada dua jalan tanpa upgrade:
+
+1. **pg_cron di Supabase.** Refresh agregat sebenarnya urusan basis data,
+   bukan urusan web. Supabase menyediakan ekstensi `pg_cron`:
+
+   ```sql
+   create extension if not exists pg_cron;
+   select cron.schedule('refresh-agregat', '0 * * * *', 'select refresh_agregat()');
+   ```
+
+   Ini berjalan tiap jam tanpa menyentuh batasan Vercel sama sekali.
+
+2. **Panggil `/api/cron/refresh-pasaran` dari penjadwal lain** (GitHub
+   Actions, cron-job.org). Rutenya masih ada dan tetap dijaga `CRON_SECRET`.
+
+Keempat rute lama (`scrape-harian`, `refresh-pasaran`, `alert-harian`,
+`verifikasi-laporan`) sengaja dipertahankan untuk dipicu manual saat
+menelusuri masalah, tapi tidak lagi punya jadwal sendiri.

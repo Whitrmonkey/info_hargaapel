@@ -1,35 +1,18 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { ambilAdapter } from "@/lib/scrape/adapters";
-import { jalankanScrape, type SourceRow } from "@/lib/scrape/run";
+import { tugasScrape } from "@/lib/cron/tugas";
 
 export const runtime = "nodejs";
-export const maxDuration = 60;
+export const maxDuration = 120;
 
-// Vercel mengirim header ini otomatis kalau CRON_SECRET diset di environment.
+// Tugas ini bagian dari rangkaian /api/cron/harian. Rute tersendiri ini
+// dipertahankan supaya bisa dipicu manual saat menelusuri masalah, tapi
+// TIDAK lagi punya jadwal cron sendiri -- lihat vercel.json.
 export async function GET(req: Request) {
-  const authHeader = req.headers.get("authorization") ?? "";
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  const rahasia = process.env.CRON_SECRET;
+  if (rahasia && req.headers.get("authorization") !== `Bearer ${rahasia}`) {
     return new NextResponse(null, { status: 401 });
   }
-
-  const admin = createAdminClient();
-  const { data: sources, error } = await admin
-    .from("sources")
-    .select("*")
-    .eq("aktif", true)
-    .eq("cadence", "harian");
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-
-  const hasil = [];
-  for (const source of (sources ?? []) as SourceRow[]) {
-    const adapter = ambilAdapter(source.adapter);
-    if (!adapter) {
-      hasil.push({ source_id: source.id, status: "gagal", pesan: `adapter '${source.adapter}' tidak dikenal` });
-      continue;
-    }
-    hasil.push({ source_id: source.id, ...(await jalankanScrape(admin, source, adapter, "cron")) });
-  }
-
-  return NextResponse.json({ jumlah_sumber: hasil.length, hasil });
+  const hasil = await tugasScrape(createAdminClient());
+  return NextResponse.json(hasil, { status: hasil.ok ? 200 : 500 });
 }
