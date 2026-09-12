@@ -7,6 +7,7 @@ import { modeSekarang } from "@/lib/mode";
 import { supabaseSiap } from "@/lib/supabase/siap";
 import { BelumTerkonfigurasi } from "@/components/belum-terkonfigurasi";
 import "./globals.css";
+import { situsUrlObjek } from "@/lib/situs";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,7 +20,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+  metadataBase: situsUrlObjek(),
   title: "hargaapel — pembanding harga Apple Jabodetabek",
   description: "Pembanding harga produk dan servis Apple untuk pembeli di Jabodetabek.",
 };

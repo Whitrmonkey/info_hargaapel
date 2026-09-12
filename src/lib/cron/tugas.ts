@@ -5,6 +5,7 @@ import { jalankanScrape, type SourceRow } from "@/lib/scrape/run";
 import { hitungSinyalSemua } from "@/lib/data/hitung-sinyal-semua";
 import { hargaSaatIniUntukWatchlist } from "@/lib/data/harga-watchlist";
 import { verifikasiLaporanMenunggu } from "@/lib/data/verifikasi-laporan";
+import { situsUrl } from "@/lib/situs";
 
 type Admin = SupabaseClient<Database>;
 
@@ -119,7 +120,7 @@ export async function tugasAlert(admin: Admin): Promise<HasilTugas> {
       ? await kirimEmail(
           email,
           "Harga yang kamu pantau turun",
-          `Harga sekarang ${rupiah(hargaSekarang)}, target kamu ${rupiah(w.target_harga)}.\n\nCek di ${process.env.NEXT_PUBLIC_SITE_URL}/akun`,
+          `Harga sekarang ${rupiah(hargaSekarang)}, target kamu ${rupiah(w.target_harga)}.\n\nCek di ${situsUrl()}/akun`,
         )
       : false;
 

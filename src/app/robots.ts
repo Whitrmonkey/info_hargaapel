@@ -1,7 +1,8 @@
 import type { MetadataRoute } from "next";
+import { situsUrl } from "@/lib/situs";
 
 export default function robots(): MetadataRoute.Robots {
-  const base = process.env.NEXT_PUBLIC_SITE_URL ?? "https://hargaapel.com";
+  const base = situsUrl();
   return {
     rules: [
       {

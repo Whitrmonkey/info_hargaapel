@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { headers } from "next/headers";
 import { PESAN_TOLAK, saringEmail } from "@/lib/saring-akun";
+import { situsUrl } from "@/lib/situs";
 
 const BATAS_PERCOBAAN = 3;
 const JENDELA_MS = 15 * 60_000;
@@ -67,7 +68,7 @@ export async function kirimTautanMasuk(email: string, turnstileToken: string): P
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithOtp({
     email,
-    options: { emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/akun` },
+    options: { emailRedirectTo: `${situsUrl()}/akun` },
   });
   if (error) return { ok: false, pesan: "Gagal mengirim tautan. Coba lagi." };
 

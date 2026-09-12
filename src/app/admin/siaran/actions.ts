@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { wajibAdmin } from "@/lib/auth/wajib-kontributor";
 import { kelompokkanPasaran, type Garansi, type Grade, type Kondisi } from "@/lib/pasaran";
 import { revalidatePath } from "next/cache";
+import { situsUrl } from "@/lib/situs";
 
 const rupiah = (n: number) => "Rp " + n.toLocaleString("id-ID");
 
@@ -90,7 +91,7 @@ export async function susunDraftMingguan() {
       : `Belum ada data perubahan minggu ini.`,
     `${observasiBaru?.length ?? 0} harga baru masuk minggu ini.`,
     ``,
-    `Lihat selengkapnya: ${process.env.NEXT_PUBLIC_SITE_URL}`,
+    `Lihat selengkapnya: ${situsUrl()}`,
   ].join("\n");
 
   await admin.from("wa_broadcast_drafts").insert({

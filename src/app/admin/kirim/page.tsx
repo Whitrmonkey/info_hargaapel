@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { KirimList, type BarisKirim } from "./kirim-list";
+import { situsUrl } from "@/lib/situs";
 
 const rupiah = (n: number) => "Rp " + n.toLocaleString("id-ID");
 
@@ -35,7 +36,7 @@ export default async function AdminKirimPage() {
     baris.push({
       id: d.id,
       nomorWa: profilPemilik.wa_e164,
-      teks: `Halo, harga ${w.products?.model ?? ""} ${w.products?.varian ?? ""} yang kamu pantau di hargaapel sekarang ${rupiah(d.harga_pemicu)}. Cek: ${process.env.NEXT_PUBLIC_SITE_URL}/akun`,
+      teks: `Halo, harga ${w.products?.model ?? ""} ${w.products?.varian ?? ""} yang kamu pantau di hargaapel sekarang ${rupiah(d.harga_pemicu)}. Cek: ${situsUrl()}/akun`,
     });
   }
 

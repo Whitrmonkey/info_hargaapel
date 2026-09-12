@@ -1,9 +1,10 @@
 import type { MetadataRoute } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { KELUARGA } from "@/lib/keluarga";
+import { situsUrl } from "@/lib/situs";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const base = process.env.NEXT_PUBLIC_SITE_URL ?? "https://hargaapel.com";
+  const base = situsUrl();
   const supabase = await createClient();
 
   const [{ data: products }, { data: serviceTypes }, { data: penjualScraper }] = await Promise.all([
